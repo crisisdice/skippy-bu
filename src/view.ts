@@ -7,10 +7,10 @@ import {
 
 function pilesView(piles: Piles): PilesView {
   return {
-    pile_1: piles.pile_1?.[-1] ?? [],
-    pile_2: piles.pile_2?.[-1] ?? [],
-    pile_3: piles.pile_3?.[-1] ?? [],
-    pile_4: piles.pile_4?.[-1] ?? [],
+    pile_1: piles.pile_1?.[-1] ?? null,
+    pile_2: piles.pile_2?.[-1] ?? null,
+    pile_3: piles.pile_3?.[-1] ?? null,
+    pile_4: piles.pile_4?.[-1] ?? null,
   }
 }
 

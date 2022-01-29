@@ -7,32 +7,42 @@ import {
 } from './methods'
 
 import {
-  GameState
+  GameState,
 } from './types'
 
 import {
   toView,
 } from './view'
 
-function indentedJson(obj: any): string {
-  return JSON.stringify(obj, undefined, 2)
-}
+import {
+  printASCIIPlayerView
+} from './client'
 
-function sampleHand() {
-  const playerName = 'player_1' 
+export type PlayerView = any
+
+function main() {
+  const name = 'Alex'
+  const position = 'player_1' 
+  const turn = false
 
   let gs: GameState = initalizeGameState()
 
   gs = shuffleAndDraw(gs)
 
   const obj = {
-    player_name: playerName,
-    hand: gs[playerName].hand,
+    name,
+    position,
+    turn,
+    hand: gs[position].hand,
     view: toView(gs)
   }
-  console.log(indentedJson(obj))
 
-  console.log(indentedJson(gs))
+  console.log(printASCIIPlayerView(
+    name,
+    turn,
+    obj.hand.splice(0, 4),
+    obj.view
+  ))
 }
 
-sampleHand()
+main()
