@@ -1,5 +1,7 @@
 import {
-  Controller
+  Controller,
+  Query,
+  Get,
 } from '@nestjs/common'
 
 import {
@@ -17,5 +19,14 @@ export class UsersController extends CrudController {
     private readonly usersService: UsersService
   ) {
     super(usersService)
+  }
+
+  @Get('/')
+  async getByEmail(@Query('email') email: string) {
+    return await this.usersService.findOne({
+      where: {
+        email
+      }
+    })
   }
 }

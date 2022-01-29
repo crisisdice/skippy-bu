@@ -5,9 +5,10 @@ import {
   UpdateType,
   CreateMethod,
   FindAllMethod,
-  FindByIdMethod,
   UpdateByIdMethod,
   DeleteByIdMethod,
+  FindWhereArgs,
+  FindWhereMethod,
 } from './types'
 
 export class BaseService {
@@ -25,9 +26,9 @@ export class BaseService {
     return await method()
   }
 
-  public async findById(id: number) {
-    const method: FindByIdMethod = this.delegate.findFirst
-    return await method({ where: { id } })
+  public async findOne(where: FindWhereArgs) {
+    const method: FindWhereMethod = this.delegate.findFirst
+    return await method(where)
   }
 
   public async updateById(id: number, data: UpdateType) {

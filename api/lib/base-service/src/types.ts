@@ -22,9 +22,10 @@ export type CreateArgs = {
   data: CreateType
 }
 
-export type FindByIdArgs = 
-  Prisma.GameFindFirstArgs |
-  Prisma.UserFindFirstArgs
+export type FindWhereArgs = {
+  where: Prisma.GameWhereInput |
+         Prisma.UserWhereInput
+}
 
 export type UpdateByIdArgs = 
   Prisma.GameUpdateArgs |
@@ -38,7 +39,7 @@ export type CreateMethod = (args: CreateArgs) => Promise<ReturnType>
 
 export type FindAllMethod = () => Promise<ReturnType[]>
 
-export type FindByIdMethod = (args: FindByIdArgs) => Promise<ReturnType>
+export type FindWhereMethod = (args: FindWhereArgs) => Promise<ReturnType>
 
 export type UpdateByIdMethod = (args: UpdateByIdArgs) => Promise<ReturnType>
 

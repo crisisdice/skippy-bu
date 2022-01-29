@@ -34,7 +34,7 @@ export class CrudController {
 
   @Get(ID)
   findById(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findById(id)
+    return this.service.findOne({ where: { id } })
   }
 
   @Put(ID)
