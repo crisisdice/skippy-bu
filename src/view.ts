@@ -3,6 +3,7 @@ import {
   GameStateView,
   Piles,
   PilesView,
+  PlayerKey,
 } from './types'
 
 function pilesView(piles: Piles): PilesView {
@@ -14,14 +15,14 @@ function pilesView(piles: Piles): PilesView {
   }
 }
 
-export function toView(gs: GameState): GameStateView {
+export function toView(gs: GameState, mapping: Record<PlayerKey, string>): GameStateView {
   return {
     piles: pilesView(gs.piles),
-    player_1: pilesView(gs.player_1.piles),
-    player_2: pilesView(gs.player_2.piles),
-    player_3: !!gs.player_3 ? pilesView(gs.player_3.piles) : null,
-    player_4: !!gs.player_4 ? pilesView(gs.player_4.piles) : null,
-    player_5: !!gs.player_5 ? pilesView(gs.player_5.piles) : null,
-    player_6: !!gs.player_6 ? pilesView(gs.player_6.piles) : null,
+    player_1: !!gs.player_1 ? { piles: pilesView(gs.player_1.piles), name: mapping['player_1'] } : null, 
+    player_2: !!gs.player_2 ? { piles: pilesView(gs.player_2.piles), name: mapping['player_2'] } : null,
+    player_3: !!gs.player_3 ? { piles: pilesView(gs.player_3.piles), name: mapping['player_3'] } : null,
+    player_4: !!gs.player_4 ? { piles: pilesView(gs.player_4.piles), name: mapping['player_4'] } : null,
+    player_5: !!gs.player_5 ? { piles: pilesView(gs.player_5.piles), name: mapping['player_5'] } : null,
+    player_6: !!gs.player_6 ? { piles: pilesView(gs.player_6.piles), name: mapping['player_6'] } : null,
   }
 }

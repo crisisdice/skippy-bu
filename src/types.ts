@@ -10,7 +10,7 @@ export type GameState = {
   player_6: Player | null
 }
 
-export type PlayerKey = Omit<keyof GameState, 'deck' | 'discard' | 'piles'>
+export type PlayerKey = 'player_1' | 'player_2' | 'player_3' | 'player_4' | 'player_5' | 'player_6'
 
 export type Player = {
   hand: number[]
@@ -26,13 +26,18 @@ export type Piles = {
 
 export type GameStateView = {
   piles: PilesView
-  player_1: PilesView
-  player_2: PilesView
-  player_3: PilesView | null
-  player_4: PilesView | null
-  player_5: PilesView | null
-  player_6: PilesView | null
+  player_1: PlayerView
+  player_2: PlayerView
+  player_3: PlayerView
+  player_4: PlayerView
+  player_5: PlayerView
+  player_6: PlayerView
 }
+
+export type PlayerView = {
+  name: string,
+  piles: PilesView 
+} | null
 
 export type PilesView = {
   pile_1: number | null

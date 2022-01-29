@@ -13,6 +13,8 @@ import {
 import {
   GameStateView,
   PilesView,
+  PlayerKey,
+  PlayerView,
 } from "./types";
 
 function renderGreeting(name: string, turn: boolean) {
@@ -65,7 +67,9 @@ function renderHand(hand: number[]) {
   }`
 }
 
-function renderPiles(name: string, piles: PilesView) {
+function renderPiles(name: string, piles: PilesView | null) {
+  if (!piles) return ''
+
   const pileCards = `${Object.keys(piles).map(key => 
       renderCard(piles[key as keyof PilesView])
     ).join('')}|`
@@ -82,19 +86,28 @@ function renderPiles(name: string, piles: PilesView) {
 }
 
 export function printASCIIPlayerView(
-    name: string,
+    position: PlayerKey,
     turn: boolean,
     hand: number[],
-    view: GameStateView
+    view: GameStateView,
   ) {
+    const player = view[position] as PlayerView
+
+    if (player === null) throw new Error('Missing player')
+
     return `${
-      renderGreeting(name, turn)
+      renderGreeting(player.name, turn)
     }${
       renderPiles('Shared piles:', view.piles)
     }${
-      renderPiles('Your piles:', view.player_1)
+      renderPiles('Your piles:', player.piles)
     }${
-      renderPiles('Player 2 piles:', view.player_2)
+      Object.keys(view)
+            .filter(key => key !== position && key !== 'piles')
+            .filter(key => view[key as PlayerKey] !== null)
+            .map(key => {
+              return renderPiles(view[key as PlayerKey]!.name, view[key as PlayerKey]!.piles)
+            }).join('')
     }${
       renderHand(hand)
     }`
