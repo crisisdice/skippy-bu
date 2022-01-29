@@ -13,3 +13,27 @@ export async function login(email: string, password: string) {
 
   return token
 }
+
+export async function register(email: string, password: string, nickname: string) {
+  // TODO
+}
+
+// TODO figure out token headers (client/server)
+// TODO endpoints constant
+
+export async function createGame() {
+  // TODO
+}
+
+export async function joinGame() {
+  // TODO
+}
+
+export async function showGames() {
+  // TODO
+}
+
+export async function startGame() {
+  // TODO
+}
+
