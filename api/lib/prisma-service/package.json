@@ -1,0 +1,22 @@
+{
+  "name": "prisma-service",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "yarn prisma generate && npx tsc"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^8.2.6",
+    "@types/node": "16.11.19",
+    "prisma": "3.7.0",
+    "ts-node": "10.4.0",
+    "typescript": "4.5.4"
+  },
+  "dependencies": {
+    "@prisma/client": "3.7.0"
+  },
+  "engines": {
+    "node": ">=12.2.0"
+  },
+  "private": true
+}

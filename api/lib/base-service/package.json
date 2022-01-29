@@ -1,0 +1,14 @@
+{
+  "name": "base-service",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "nest build"
+  },
+  "dependencies": {
+    "@nestjs/common": "^8.2.6"
+  },
+  "devDependencies": {
+  },
+  "private": true
+}

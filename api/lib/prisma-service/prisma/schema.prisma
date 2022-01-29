@@ -1,0 +1,42 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Game {
+  // standard
+  id            Int      @id @default(autoincrement())
+  key           String   @unique
+  metadata      Json
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // scalar fields
+  state         Json
+  playerMapping Json @map("player_mapping")
+
+  // relations
+
+  @@map("games")
+}
+
+model User {
+  // standard
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  metadata  Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // scalar fields
+  email     String   @unique
+  password String
+
+  // relations
+
+  @@map("users")
+}

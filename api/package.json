@@ -1,0 +1,24 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "REST API for the inventory management app.",
+  "main": "index.js",
+  "scripts": {
+    "test": "(cd \"apps/crud-service\" && yarn test && yarn test:e2e)",
+    "build": "(cd \"lib/prisma-service\" && yarn build) && (cd \"lib/base-service\" && yarn build) && (cd \"lib/crud-controller\" && yarn build) && (cd \"apps/crud-service\" && yarn build)"
+  },
+  "author": "Alexander Daily",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "lib/*"
+    ]
+  },
+  "resolutions": {
+    "**/@prisma/client": "3.7.0",
+    "**/prisma": "3.7.0",
+    "**/rxjs": "7.5.2",
+    "**/typescript": "4.5.4"
+  }
+}
