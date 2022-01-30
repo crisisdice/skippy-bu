@@ -21,7 +21,7 @@ export class UsersController extends CrudController {
     super(usersService)
   }
 
-  @Get('email')
+  @Get('by-metadata')
   async getByEmail(@Query('email') equals: string) {
     return await this.usersService.findOne({
       where: {
