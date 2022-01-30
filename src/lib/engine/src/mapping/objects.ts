@@ -15,7 +15,7 @@ function initializePiles(): Piles {
   }
 }
 
-function initializePlayer(user: User): Player {
+export function initializePlayer(user: User): Player {
   return {
     user,
     hand: [],

@@ -1,33 +1,84 @@
 import {
-  HttpException,
   Injectable
 } from '@nestjs/common'
 
-import {ConfigService} from '@nestjs/config'
+import {
+  ConfigService
+} from '@nestjs/config'
 
-import { Prisma, Game, User} from '@prisma/client'
+import {
+  Prisma,
+  Game,
+  User
+} from '@prisma/client'
 
 import axios from 'axios'
+
+import {
+  createGameState,
+  GameState,
+  PlayerKey,
+  initializePlayer,
+} from 'engine'
+
+import {
+  hash,
+  genSalt
+} from 'bcryptjs'
 
 /**/
 @Injectable()
 export class GamesService {
+  private readonly endpoint: string
+
   constructor(
     private readonly configService: ConfigService
-  ) {}
+  ) {
+    this.endpoint = `${this.configService.get<string>('CRUD_URL')}/games/`
+  }
 
-  async createGame(user: User) {
+  async createGame(user: User): Promise<Game> {
     const key = user.key
     const payload = {
       creator: { connect: { key } },
-      key,
+      key: await hash(key, (await genSalt(10))),
       metadata: { test: "test" },
-      state: {},
-      playerMapping: {}
+      state: JSON.stringify(createGameState(user)),
     } as Prisma.GameCreateInput
-    const { data: game } = await axios.post<Game>('http://localhost:3000/games', payload)
+
+    const { data: game } = await axios.post<Game>(this.endpoint, payload)
 
     return game
   }
+
+  async joinGame(user: User, key: string): Promise<Game> {
+    const { data: game } = await axios.get<Game>(this.endpoint, {
+      params: {
+        key
+      }
+    })
+
+    const state = game.state as unknown as GameState
+    let slot: PlayerKey
+    for (const player in Object.keys(state.players)) {
+      if (state.players[player] === null) {
+        slot = player as PlayerKey
+        break
+      }
+    }
+    if (!slot) throw new Error('Game is full')
+
+    state.players[slot] = initializePlayer(user)
+
+    const { data: updated } = await axios.put<Game>(this.endpoint + game.id, {
+      state
+    })
+
+    return updated
+  }
+
+  //async startGame(user: User, key: string): Promise<Game> {
+
+  //}
 }
 

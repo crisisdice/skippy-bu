@@ -7,6 +7,7 @@ import {
   Player,
   PlayerKey,
   PlayerView,
+  UserMetadata,
 } from '../types'
 
 function viewTopCard(pile: number[]): number | null {
@@ -26,8 +27,7 @@ function playerView(player: Player, turn: boolean): PlayerView {
     discard: pilesView(player.discard),
     stock: player.stock?.[0] ?? null,
     turn,
-    // metadata.name
-    metadata: player.user.metadata,
+    metadata: player.user.metadata as UserMetadata,
   }
 }
 

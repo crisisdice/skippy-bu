@@ -34,13 +34,11 @@ export class CrudController {
 
   @Get()
   findByQuery(@Query() query: IQuery) {
-    console.log('one')
     return this.service.findOne({ where: query })
   }
 
-  @Get()
+  @Get('all')
   findAll() {
-    console.log('all')
     return this.service.findAll()
   }
 

@@ -33,6 +33,6 @@ export class GamesController {
   async createGame(
     @Response({ passthrough: true }) res: IResponse,
   ) {
-    await this.gamesService.createGame(getUser(res))
+    return await this.gamesService.createGame(getUser(res))
   }
 }

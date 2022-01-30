@@ -3,24 +3,58 @@ import {
   Injectable
 } from '@nestjs/common'
 
-import {ConfigService} from '@nestjs/config'
+import {
+  ConfigService
+} from '@nestjs/config'
 
-import { sign } from 'jsonwebtoken'
+import {
+  sign
+} from 'jsonwebtoken'
 
-import { User } from '@prisma/client'
+import {
+  compare,
+  hash,
+  genSalt
+} from 'bcryptjs'
+
+import {
+  Prisma,
+  User,
+} from '@prisma/client'
 
 import axios from 'axios'
+
+import {
+  getMetadata
+} from '../@utils/getUser'
 
 /**/
 @Injectable()
 export class UsersService {
+  private readonly endpoint: string
   constructor(
     private readonly configService: ConfigService
-  ) {}
+  ) {
+    this.endpoint = `${this.configService.get<string>('CRUD_URL')}/users`
+  }
+
+  async register(data: Prisma.UserCreateInput) {
+    const metadata = getMetadata(data as User)
+    const withHashedPassword = {
+      ...data,
+      metadata: {
+        ...metadata,
+        password: await hash(metadata.password, (await genSalt(10))) 
+      }
+    }
+    const { data: user } = await axios.post<User>(this.endpoint, withHashedPassword)
+    return user
+  }
 
   async login(data: { email: string, password: string }) {
     const { email, password } = data
-    const { data: user } = await axios.get<User>('http://localhost:3000/users', {
+    const { data: user } = await axios.get<User>(
+      `${this.endpoint}/by-metadata`, {
       params: {
         email
       }
@@ -38,7 +72,7 @@ export class UsersService {
       issuer: 'skippy-bu',
     })
 
-    if (user.password === password) return token
+    if (compare(password, getMetadata(user).password)) return token
 
     throw new HttpException('', 403)
   }

@@ -1,5 +1,4 @@
 import { PlayerKey, PileKey } from './keys'
-import { Prisma } from '@prisma/client'
 
 export type GameStateView = {
   building: PilesView
@@ -7,11 +6,17 @@ export type GameStateView = {
 }
 
 export type PlayerView = {
-  metadata: Prisma.JsonValue
+  metadata: UserMetadata
   stock: number
   discard: PilesView 
   turn: boolean
 }
 
 export type PilesView = Record<PileKey, number | null>
+
+export type UserMetadata = {
+  email: string
+  nickname: string
+  password: string
+}
 

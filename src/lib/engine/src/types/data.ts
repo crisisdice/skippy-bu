@@ -1,7 +1,6 @@
 import { User } from '@prisma/client'
 import { PlayerKey, PileKey } from './keys'
 
-
 // top -> [] <- bottom
 export type GameState = {
   deck: number[]

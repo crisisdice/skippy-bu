@@ -1,4 +1,5 @@
 export * from './types'
+export * from './mapping'
 
 import {
   initalizeGameState,
@@ -15,6 +16,3 @@ import {
 export function createGameState(creator: User) {
   return shuffleDealAndDraw(initalizeGameState(creator))
 }
-
-export { toView } from './mapping'
-

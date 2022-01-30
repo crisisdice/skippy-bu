@@ -27,7 +27,10 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '50mb' }))
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
-  await app.listen(configService.get<number>('PORT', { infer: true }) ?? 3000)
+  const port = configService.get<number>('PORT')
+  
+
+  await app.listen(3001)
 }
 
 bootstrap()

@@ -1,6 +1,9 @@
 {
+  "name": "engine",
+  "version": "1.0.0",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "yarn tsc"
+    "build": "npx tsc"
   },
   "devDependencies": {
     "@types/node": "^17.0.13",
@@ -8,6 +11,7 @@
   },
   "dependencies": {
     "tsc": "^2.0.4"
-  }
+  },
+  "private": true
 }
 
