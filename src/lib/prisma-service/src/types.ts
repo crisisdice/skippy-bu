@@ -1,10 +1,9 @@
 import { PrismaClient, Prisma, User, Game } from '@prisma/client'
 
 // TODO autogenerate this file
-
-export type CreateType =
-  Prisma.UserCreateInput |
-  Prisma.GameCreateInput
+export type CreateInput =
+  Prisma.GameCreateInput |
+  Prisma.UserCreateInput
 
 export type UpdateType =
   Prisma.UserUpdateInput |
@@ -18,13 +17,16 @@ export type DelegateType =
   PrismaClient['game'] |
   PrismaClient['user'] 
 
-export type CreateArgs = { 
-  data: CreateType
+export type CreateArgs = {
+  data: CreateInput
 }
 
+export type Query =
+  Prisma.GameWhereInput |
+  Prisma.UserWhereInput
+
 export type FindWhereArgs = {
-  where: Prisma.GameWhereInput |
-         Prisma.UserWhereInput
+  where: Query
 }
 
 export type UpdateByIdArgs = 

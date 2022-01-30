@@ -5,14 +5,19 @@ import {
   Put,
   Param,
   Delete,
-  ParseIntPipe
+  ParseIntPipe,
+  Query
 } from '@nestjs/common'
 
 import {
-  CreateType,
-  UpdateType,
   BaseService,
 } from 'base-service'
+
+import {
+  CreateInput,
+  UpdateType,
+  Query as IQuery
+} from 'prisma-service'
 
 const ID = ':id'
 
@@ -23,12 +28,19 @@ export class CrudController {
   ) {}
 
   @Post()
-  create(@Body() createData: CreateType) {
+  create(@Body() createData: CreateInput) {
     return this.service.create(createData)
   }
 
   @Get()
+  findByQuery(@Query() query: IQuery) {
+    console.log('one')
+    return this.service.findOne({ where: query })
+  }
+
+  @Get()
   findAll() {
+    console.log('all')
     return this.service.findAll()
   }
 

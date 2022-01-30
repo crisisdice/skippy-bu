@@ -1,7 +1,7 @@
 import {
   Controller,
-  Query,
   Get,
+  Query
 } from '@nestjs/common'
 
 import {
@@ -21,12 +21,16 @@ export class UsersController extends CrudController {
     super(usersService)
   }
 
-  @Get('/')
-  async getByEmail(@Query('email') email: string) {
+  @Get('by-metadata')
+  async getByEmail(@Query('email') equals: string) {
     return await this.usersService.findOne({
       where: {
-        email
+        metadata: {
+          path: ['email'],
+          equals
+        }
       }
     })
   }
 }
+
