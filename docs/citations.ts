@@ -1,3 +1,0 @@
-// Tim Corey
-// Fireship IO
-//
