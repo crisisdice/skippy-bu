@@ -34,7 +34,3 @@ export class UsersController extends CrudController {
   }
 }
 
-//TODO
-export type UserMetaDataQuery = {
-  email: string
-}
