@@ -18,11 +18,12 @@ export type DelegateType =
   PrismaClient['user'] 
 
 export type CreateArgs = {
-    data: CreateInput
+  data: CreateInput
 }
 
-export type Query = Prisma.GameWhereInput |
-         Prisma.UserWhereInput
+export type Query =
+  Prisma.GameWhereInput |
+  Prisma.UserWhereInput
 
 export type FindWhereArgs = {
   where: Query
