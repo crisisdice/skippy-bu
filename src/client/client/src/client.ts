@@ -15,7 +15,7 @@ import {
   PilesView,
   PlayerKey,
   PlayerView,
-} from "./types";
+} from 'engine'
 
 function renderGreeting(name: string, turn: boolean) {
   return `   Hello ${ name }, it is ${ turn ? '' : 'not' } your turn.\n${
@@ -91,22 +91,23 @@ export function printASCIIPlayerView(
     hand: number[],
     view: GameStateView,
   ) {
-    const player = view[position] as PlayerView
+    const player = view.players[position]
 
     if (player === null) throw new Error('Missing player')
 
     return `${
-      renderGreeting(player.name, turn)
+      renderGreeting(player.metadata.nickname, turn)
     }${
-      renderPiles('Shared piles:', view.piles)
+      renderPiles('Shared piles:', view.building)
     }${
-      renderPiles('Your piles:', player.piles)
+      renderPiles('Your piles:', player.discard)
     }${
-      Object.keys(view)
+      Object.keys(view.players)
             .filter(key => key !== position && key !== 'piles')
-            .filter(key => view[key as PlayerKey] !== null)
+            .filter(key => view.players[key as PlayerKey] !== null)
             .map(key => {
-              return renderPiles(view[key as PlayerKey]!.name, view[key as PlayerKey]!.piles)
+              const player = view.players[key as PlayerKey]
+              return renderPiles(player!.metadata.nickname, player!.discard)
             }).join('')
     }${
       renderHand(hand)

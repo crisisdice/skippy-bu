@@ -1,6 +1,8 @@
 import { prompt }from 'inquirer'
 import { createSpinner } from 'nanospinner'
 import {login, SecureClient} from './methods'
+import { GameState, toView } from 'engine'
+import {printASCIIPlayerView} from './client'
 
 let playerName: string
 let token: string
@@ -75,7 +77,10 @@ async function main() {
   const client = new SecureClient(token)
 
   const game = await client.createGame()
-  console.log(game)
+  const state = JSON.parse(game.state)
+  const view = toView(state)
+  console.log(printASCIIPlayerView('player_1', true, state.players.player_1.hand, view))
+
   //await askName()
   //a/wait question1()
 }
