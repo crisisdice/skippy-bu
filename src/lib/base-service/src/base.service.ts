@@ -1,7 +1,7 @@
 
 import {
   DelegateType,
-  CreateType,
+  CreateInput,
   UpdateType,
   CreateMethod,
   FindAllMethod,
@@ -9,14 +9,14 @@ import {
   DeleteByIdMethod,
   FindWhereArgs,
   FindWhereMethod,
-} from './types'
+} from 'prisma-service'
 
 export class BaseService {
   constructor(
     private delegate: DelegateType
   ) {}
 
-  public async create(data: CreateType) {
+  public async create(data: CreateInput) {
     const method: CreateMethod = this.delegate.create
     return await method({ data })
   }

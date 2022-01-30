@@ -5,23 +5,23 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["filterJson"]
 }
 
 model Game {
   // standard
-  id            Int      @id @default(autoincrement())
-  key           String   @unique
-  metadata      Json
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  metadata  Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // scalar fields
-  state         Json
-  playerMapping Json @map("player_mapping")
+  state Json?
 
   // relations
-  creatorId     Int @map("creator_id")
-  creator       User @relation(fields: [creatorId], references: [id])
+  creatorId Int?  @map("creator_id")
+  creator   User? @relation(fields: [creatorId], references: [id])
 
   @@map("games")
 }
@@ -35,8 +35,6 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // scalar fields
-  email     String   @unique
-  password String
 
   // relations
   createdGames Game[]
