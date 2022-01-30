@@ -1,6 +1,6 @@
 import { prompt }from 'inquirer'
 import { createSpinner } from 'nanospinner'
-import {login} from './methods'
+import {login, SecureClient} from './methods'
 
 let playerName: string
 let token: string
@@ -46,7 +46,8 @@ async function loginPrompt() {
     message: 'What is your password?',
   })).password
 
-  return login(email, password)
+  //return login(email, password)
+  return login('alexanderdaily001@gmail.com', 'test')
 }
 
 async function question1() {

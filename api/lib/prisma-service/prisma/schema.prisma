@@ -20,6 +20,8 @@ model Game {
   playerMapping Json @map("player_mapping")
 
   // relations
+  creatorId     Int @map("creator_id")
+  creator       User @relation(fields: [creatorId], references: [id])
 
   @@map("games")
 }
@@ -37,6 +39,7 @@ model User {
   password String
 
   // relations
+  createdGames Game[]
 
   @@map("users")
 }
