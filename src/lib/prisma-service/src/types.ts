@@ -1,23 +1,9 @@
 import { PrismaClient, Prisma, User, Game } from '@prisma/client'
 
 // TODO autogenerate this file
-
-
-type SharedBase = "key" | "metadata" | "createdAt" | "updatedAt"
-type A = Prisma.UserCreateInput
-type SharedTypeSafe = { [K in SharedBase]: A[K] }
-type JustGame = Omit<Prisma.GameCreateInput, SharedBase>
-type JustUser = Omit<Prisma.UserCreateInput, SharedBase>
-
-
-// TODO there must be a way to genericize this
-export type CreateInput = Prisma.GameCreateInput | Prisma.UserCreateInput
-
-type UnionToIntersection<U> = 
-  (U extends any ? (k: U)=>void : never) extends ((k: infer I)=>void) ? I : never
-
-export type NoUnion<T, TError> = [T] extends [UnionToIntersection<T>] ? {} : TError
-
+export type CreateInput =
+  Prisma.GameCreateInput |
+  Prisma.UserCreateInput
 
 export type UpdateType =
   Prisma.UserUpdateInput |
