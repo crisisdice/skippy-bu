@@ -71,7 +71,11 @@ async function question1() {
 async function main() {
   console.clear()
   const token = await loginPrompt()
-  console.log(token)
+
+  const client = new SecureClient(token)
+
+  const game = await client.createGame()
+  console.log(game)
   //await askName()
   //a/wait question1()
 }
