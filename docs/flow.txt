@@ -1,0 +1,13 @@
+TODO set up token logic
+
+
+POST /login { "email": "", "password": "" }
+
+GET  /lobby            -- get all public games where there is still room
+POST /lobby            -- create a game
+PUT  /lobby/:id        -- join a game with id :id
+PUT  /lobby/start/:id  -- start a game with id :id
+
+GET /game/:id          -- get current state (refresh every x mins?)
+PUT /game/move/:id     -- perform one move
+

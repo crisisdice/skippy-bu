@@ -16,6 +16,15 @@ export class UsersController {
   ) {
   }
 
+
+  //@Get('/')
+  //async getByEmail(@Query('email') email: string) {
+  //  return await this.usersService.findOne({
+  //    where: {
+  //      email
+  //    }
+  //  })
+  //}
   @Post('/login')
   async login(@Body() body: { email: string, password: string }) {
     return await this.usersService.login(body)
