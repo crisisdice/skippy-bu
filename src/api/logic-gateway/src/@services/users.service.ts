@@ -18,7 +18,6 @@ import {
 } from 'bcryptjs'
 
 import {
-  Prisma,
   User,
 } from '@prisma/client'
 
@@ -29,6 +28,7 @@ import {
 } from '../@utils/getUser'
 
 import {
+  Credentials,
   UserMetadata
 } from 'engine'
 
@@ -36,13 +36,15 @@ import {
 @Injectable()
 export class UsersService {
   private readonly endpoint: string
+  private readonly secret: string
   constructor(
     private readonly configService: ConfigService
   ) {
     this.endpoint = `${this.configService.get<string>('CRUD_URL')}/users`
+    this.secret = this.configService.get<string>('SECRET')
   }
 
-  async register(metadata: UserMetadata) {
+  public async register(metadata: UserMetadata): Promise<string> {
     const salt = await genSalt(10)
     const withHashedPassword = {
       key: await hash(JSON.stringify(metadata), salt),
@@ -52,33 +54,31 @@ export class UsersService {
       }
     }
     const { data: user } = await axios.post<User>(this.endpoint, withHashedPassword)
-    return user
+
+    return this.signToken(user.key)
   }
 
-  async login(data: { email: string, password: string }) {
-    const { email, password } = data
+  public async login({ email, password }: Credentials): Promise<string> {
     const { data: user } = await axios.get<User>(
       `${this.endpoint}/by-metadata`, {
       params: {
         email
       }
     })
+    if (!user) throw new HttpException('User not found', 404)
 
-    const tokenInfo = {
-      key: user.key
-    }
+    if (!(await compare(password, getMetadata(user).password))) throw new HttpException('Wrong password', 403)
+    
+    return this.signToken(user.key)
+  }
 
-    //const token = sign(tokenInfo, this.configService.get<string>('privateKey') || 'secret', {
-    const token = sign(tokenInfo, 'secret', {
+  private signToken(key: string) {
+    // TODO sign with private key and share pub key?
+    return sign({ key }, this.secret, {
       algorithm: 'HS256',
-      //algorithm: 'RS256',
       expiresIn: '7d',
       issuer: 'skippy-bu',
     })
-
-    if (compare(password, getMetadata(user).password)) return token
-
-    throw new HttpException('', 403)
   }
 }
 

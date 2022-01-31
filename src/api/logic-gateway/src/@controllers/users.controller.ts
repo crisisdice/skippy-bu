@@ -8,7 +8,6 @@ import {
   UsersService
 } from '../@services'
 
-import { Prisma } from '@prisma/client'
 import { Credentials } from 'engine'
 
 /**/
