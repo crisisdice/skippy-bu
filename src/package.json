@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "(cd apps/crud-service && yarn test && yarn test:e2e)",
-    "build:libs": "(cd lib/prisma-service && yarn build) && (cd lib/engine && yarn build) && (cd lib/base-service && yarn build) && (cd lib/crud-controller && yarn build)",
+    "build:libs": "(cd lib/prisma-service && yarn build) && (cd lib/engine && yarn build) && (cd lib/base-service && yarn build) && (cd lib/crud-controller && yarn build) && (cd lib/constants && yarn build)",
     "build:api": "(cd api/logic-gateway && yarn build) && (cd api/crud-service && yarn build)",
-    "build:client": "(cd client && yarn build)",
+    "build:client": "(cd client/client && yarn build)",
     "build": "yarn build:libs && yarn build:api && yarn build:client"
   },
   "author": "Alexander Daily",

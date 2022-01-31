@@ -28,6 +28,10 @@ import {
   getMetadata
 } from '../@utils/getUser'
 
+import {
+  UserMetadata
+} from 'engine'
+
 /**/
 @Injectable()
 export class UsersService {
@@ -38,13 +42,13 @@ export class UsersService {
     this.endpoint = `${this.configService.get<string>('CRUD_URL')}/users`
   }
 
-  async register(data: Prisma.UserCreateInput) {
-    const metadata = getMetadata(data as User)
+  async register(metadata: UserMetadata) {
+    const salt = await genSalt(10)
     const withHashedPassword = {
-      ...data,
+      key: await hash(JSON.stringify(metadata), salt),
       metadata: {
         ...metadata,
-        password: await hash(metadata.password, (await genSalt(10))) 
+        password: await hash(metadata.password, salt) 
       }
     }
     const { data: user } = await axios.post<User>(this.endpoint, withHashedPassword)

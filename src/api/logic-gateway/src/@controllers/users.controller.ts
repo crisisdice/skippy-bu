@@ -9,6 +9,7 @@ import {
 } from '../@services'
 
 import { Prisma } from '@prisma/client'
+import { Credentials } from 'engine'
 
 /**/
 @Controller('users')
@@ -19,12 +20,12 @@ export class UsersController {
   }
   
   @Post('register')
-  async register(@Body() body: Prisma.UserCreateInput) {
+  async register(@Body() body: Credentials & { nickname: string }) {
     return await this.usersService.register(body)
   }
 
   @Post('login')
-  async login(@Body() body: { email: string, password: string }) {
+  async login(@Body() body: Credentials) {
     return await this.usersService.login(body)
   }
 }
