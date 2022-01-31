@@ -77,6 +77,9 @@ export class SecureClient {
   
   async fetchGames(): Promise<Game[]> {
     try {
+      //const { data } = await this.client.get<Game[]>
+      //console.log(data)
+      //return data
       return (await this.client.get<Game[]>('games')).data
     } catch (e) {
       return handleFrontendError(e) ?? []

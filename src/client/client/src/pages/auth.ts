@@ -20,7 +20,7 @@ async function credentials(askName: boolean = false) {
 }
 
 export async function authorization(client: LoginClient) {
-  resetTitle()
+  await resetTitle()
 
   while(true) {
     const login = await initialMethod()

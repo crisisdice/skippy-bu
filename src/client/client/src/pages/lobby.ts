@@ -13,6 +13,7 @@ async function initialMethod() {
 }
 
 async function listGames(games: Game[]) {
+  if (!games.length) return null
   return listQuestion('Choose a game', games.map(game => game.toString()))
 }
 

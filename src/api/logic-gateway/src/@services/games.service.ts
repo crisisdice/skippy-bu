@@ -77,6 +77,12 @@ export class GamesService {
     return updated
   }
 
+  async getGames(): Promise<Game[]> {
+    return (await axios.get<Game[]>(this.endpoint, {
+      params: {}
+    })).data
+  }
+  
   //async startGame(user: User, key: string): Promise<Game> {
 
   //}

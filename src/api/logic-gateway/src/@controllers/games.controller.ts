@@ -2,7 +2,8 @@ import {
   Controller,
   UseGuards,
   Post,
-  Response
+  Response,
+  Get
 } from '@nestjs/common'
 
 import {
@@ -28,11 +29,17 @@ export class GamesController {
     private readonly gamesService: GamesService
   ) {}
 
-  @Post('')
+  @Post('/')
   @UseGuards(AuthGuard)
   async createGame(
     @Response({ passthrough: true }) res: IResponse,
   ) {
     return await this.gamesService.createGame(getUser(res))
+  }
+
+  @Get('/')
+  @UseGuards(AuthGuard)
+  async getGames() {
+    return await this.gamesService.getGames()
   }
 }
