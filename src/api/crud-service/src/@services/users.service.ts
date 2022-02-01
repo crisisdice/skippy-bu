@@ -7,6 +7,7 @@ import {
 } from 'base-service'
 
 import {
+  DelegateType,
   PrismaService
 } from 'prisma-service'
 
@@ -16,7 +17,7 @@ export class UsersService extends BaseService {
   constructor(
     private readonly prisma: PrismaService
   ) {
-    super(prisma.user)
+    super(prisma.user as unknown as DelegateType)
   }
 }
 

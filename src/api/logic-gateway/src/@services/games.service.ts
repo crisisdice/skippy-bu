@@ -75,7 +75,7 @@ export class GamesService {
   }
 
   async getGames(): Promise<Game[]> {
-    return (await axios.get<Game[]>(this.endpoint, {
+    return (await axios.get<Game[]>(`${this.endpoint}all`, {
       params: {}
     })).data
   }

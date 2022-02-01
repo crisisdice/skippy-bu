@@ -35,6 +35,9 @@ model User {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // scalar fields
+  email     String   @unique
+  nickname  String   @unique
+  password  String
 
   // relations
   createdGames Game[]

@@ -22,14 +22,9 @@ export class UsersController extends CrudController {
   }
 
   @Get('by-metadata')
-  async getByEmail(@Query('email') equals: string) {
+  async getByEmail(@Query('email') email: string) {
     return await this.usersService.findOne({
-      where: {
-        metadata: {
-          path: ['email'],
-          equals
-        }
-      }
+      where: { email }
     })
   }
 }

@@ -20,12 +20,7 @@ import {
 import axios from 'axios'
 
 import {
-  getMetadata
-} from '../@utils/getUser'
-
-import {
   Credentials,
-  UserMetadata
 } from 'engine'
 
 /**/
@@ -40,29 +35,47 @@ export class UsersService {
     this.secret = this.configService.get<string>('SECRET')
   }
 
-  public async register(metadata: UserMetadata): Promise<string> {
-    const withHashedPassword = {
-      key: await hash(metadata),
-      metadata: {
-        ...metadata,
-        password: await hash(metadata.password) 
+  public async register(credentials: Credentials): Promise<string> {
+    const { email, password, nickname } = credentials
+    //TODO get this down to one fetch
+    const { data: sameEmail } = await axios.get<User>(
+      this.endpoint, {
+      params: {
+        email
       }
-    }
-    const { data: user } = await axios.post<User>(this.endpoint, withHashedPassword)
+    })
+    const { data: sameNickname } = await axios.get<User>(
+      this.endpoint, {
+      params: {
+        nickname
+      }
+    })
+
+    if (!!sameEmail) throw new HttpException('Email taken', 400)
+    if (!!sameNickname) throw new HttpException('Nickname taken', 400)
+
+    const { data: user } = await axios.post<User>(this.endpoint, {
+      key: hash(credentials),
+      password: hash(password),
+      metadata: {},
+      email,
+      nickname,
+    })
 
     return this.signToken(user.key)
   }
 
   public async login({ email, password }: Credentials): Promise<string> {
+    if (!email || !password) throw new HttpException('', 400)
+
     const { data: user } = await axios.get<User>(
-      `${this.endpoint}/by-metadata`, {
+      this.endpoint, {
       params: {
         email
       }
     })
     if (!user) throw new HttpException('User not found', 404)
-
-    if (!(hash(password) === getMetadata(user).password)) throw new HttpException('Wrong password', 403)
+    if (!(hash(password) === user.password)) throw new HttpException('Wrong password', 403)
     
     return this.signToken(user.key)
   }

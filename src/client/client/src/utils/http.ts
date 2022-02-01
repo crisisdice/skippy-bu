@@ -21,7 +21,7 @@ export class LoginClient {
     this.client = axios.create({ baseURL })
   }
 
-  async login({ email, password }: Credentials): Promise<string | null> {
+  async login({ email, password }: { email: string, password: string }): Promise<string | null> {
     try {
       const { data: token } = await this.client.post(`login`, {
         email,
@@ -61,7 +61,7 @@ export class SecureClient {
 
   async createGame() {
     try {
-      return (await this.client.post(`endpoints.createGame`)).data
+      return (await this.client.post(`games`)).data
     } catch (e) {
       return handleFrontendError(e)
     }
@@ -77,10 +77,7 @@ export class SecureClient {
   
   async fetchGames(): Promise<Game[]> {
     try {
-      //const { data } = await this.client.get<Game[]>
-      //console.log(data)
-      //return data
-      return (await this.client.get<Game[]>('games')).data
+      return (await this.client.get('games')).data
     } catch (e) {
       return handleFrontendError(e) ?? []
     }

@@ -22,4 +22,5 @@ export type Piles = Record<PileKey, number[]>
 export type Credentials = {
   email: string
   password: string
+  nickname: string
 }
