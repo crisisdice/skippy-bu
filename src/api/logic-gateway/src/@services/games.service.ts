@@ -54,10 +54,11 @@ export class GamesService {
         key
       }
     })
-
-    const state = game.state as unknown as GameState
+    const state = JSON.parse(game.state as string) as GameState
+    console.log(state)
     let slot: PlayerKey
-    for (const player in Object.keys(state.players)) {
+    for (const player of Object.keys(state.players)) {
+      console.log(player)
       if (state.players[player] === null) {
         slot = player as PlayerKey
         break

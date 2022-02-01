@@ -3,7 +3,9 @@ import {
   UseGuards,
   Post,
   Response,
-  Get
+  Get,
+  Put,
+  Body,
 } from '@nestjs/common'
 
 import {
@@ -29,6 +31,12 @@ export class GamesController {
     private readonly gamesService: GamesService
   ) {}
 
+  @Get('/')
+  @UseGuards(AuthGuard)
+  async getGames() {
+    return await this.gamesService.getGames()
+  }
+
   @Post('/')
   @UseGuards(AuthGuard)
   async createGame(
@@ -36,10 +44,13 @@ export class GamesController {
   ) {
     return await this.gamesService.createGame(getUser(res))
   }
-
-  @Get('/')
+  
+  @Put('/')
   @UseGuards(AuthGuard)
-  async getGames() {
-    return await this.gamesService.getGames()
+  async joinGame(
+    @Body('key') key: string,
+    @Response({ passthrough: true }) res: IResponse,
+  ) {
+    return await this.gamesService.joinGame(getUser(res), key)
   }
 }

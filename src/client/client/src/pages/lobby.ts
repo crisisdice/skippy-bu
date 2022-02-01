@@ -14,7 +14,8 @@ async function initialMethod() {
 
 async function listGames(games: Game[]) {
   if (!games.length) return null
-  return listQuestion('Choose a game', games.map(game => game.toString()))
+  // TODO figure out how to use objects with inquirer
+  return await listQuestion('Choose a game', games.map(game => game.key))
 }
 
 export async function findGame(client: SecureClient) {
@@ -23,9 +24,14 @@ export async function findGame(client: SecureClient) {
     const join = await initialMethod()
     console.clear()
     const spinner = createSpinner('One moment please...').start()
-    const game = join ? await listGames((await client.fetchGames())) : (await client.createGame())
-    if (!game) throw new Error('No game :( !')
+    const fetch = await (join ? client.fetchGames() : client.createGame())
     spinner.success()
+
+    if (fetch && !join) return fetch
+
+    const key = await listGames(fetch)
+    const game = await client.joinGame(key)
+    if (!fetch || !game) throw new Error('No game :( !')
     console.clear()
     return game
   }
