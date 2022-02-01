@@ -21,10 +21,7 @@ import {
   initializePlayer,
 } from 'engine'
 
-import {
-  hash,
-  genSalt
-} from 'bcryptjs'
+import hash from 'object-hash'
 
 /**/
 @Injectable()
@@ -41,7 +38,7 @@ export class GamesService {
     const key = user.key
     const payload = {
       creator: { connect: { key } },
-      key: await hash(key, (await genSalt(10))),
+      key: hash(key),
       metadata: { test: "test" },
       state: JSON.stringify(createGameState(user)),
     } as Prisma.GameCreateInput

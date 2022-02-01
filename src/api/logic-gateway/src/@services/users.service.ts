@@ -11,11 +11,7 @@ import {
   sign
 } from 'jsonwebtoken'
 
-import {
-  compare,
-  hash,
-  genSalt
-} from 'bcryptjs'
+import hash from 'object-hash'
 
 import {
   User,
@@ -45,12 +41,11 @@ export class UsersService {
   }
 
   public async register(metadata: UserMetadata): Promise<string> {
-    const salt = await genSalt(10)
     const withHashedPassword = {
-      key: await hash(JSON.stringify(metadata), salt),
+      key: await hash(metadata),
       metadata: {
         ...metadata,
-        password: await hash(metadata.password, salt) 
+        password: await hash(metadata.password) 
       }
     }
     const { data: user } = await axios.post<User>(this.endpoint, withHashedPassword)
@@ -67,7 +62,7 @@ export class UsersService {
     })
     if (!user) throw new HttpException('User not found', 404)
 
-    if (!(await compare(password, getMetadata(user).password))) throw new HttpException('Wrong password', 403)
+    if (!(hash(password) === getMetadata(user).password)) throw new HttpException('Wrong password', 403)
     
     return this.signToken(user.key)
   }
