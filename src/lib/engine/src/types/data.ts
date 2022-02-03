@@ -3,6 +3,7 @@ import { PlayerKey, PileKey } from './keys'
 
 // top -> [] <- bottom
 export type GameState = {
+  key: string
   deck: number[]
   discard: number[]
   building: Piles

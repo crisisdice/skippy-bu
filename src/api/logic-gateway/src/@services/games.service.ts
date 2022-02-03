@@ -16,9 +16,11 @@ import axios from 'axios'
 
 import {
   createGameState,
-  GameState,
   PlayerKey,
   initializePlayer,
+  GameStateView,
+  GameState,
+  toView,
 } from 'engine'
 
 import hash from 'object-hash'
@@ -34,31 +36,29 @@ export class GamesService {
     this.endpoint = `${this.configService.get<string>('CRUD_URL')}/games/`
   }
 
-  async createGame(user: User): Promise<Game> {
-    const key = user.key
+  async createGame(user: User): Promise<GameStateView> {
+    const key = hash(user.key)
     const payload = {
-      creator: { connect: { key } },
-      key: hash(key),
+      creator: { connect: { key: user.key } },
+      key,
       metadata: { test: "test" },
-      state: JSON.stringify(createGameState(user)),
+      state: JSON.stringify(createGameState(user, key)),
     } as Prisma.GameCreateInput
 
     const { data: game } = await axios.post<Game>(this.endpoint, payload)
 
-    return game
+    return toView(JSON.parse(game.state.toString()), 'player_1')
   }
 
-  async joinGame(user: User, key: string): Promise<Game> {
+  async joinGame(user: User, key: string): Promise<GameStateView> {
     const { data: game } = await axios.get<Game>(this.endpoint, {
       params: {
         key
       }
     })
-    const state = JSON.parse(game.state as string) as GameState
-    console.log(state)
+    const state = JSON.parse(game.state.toString()) //as unknown as GameState
     let slot: PlayerKey
     for (const player of Object.keys(state.players)) {
-      console.log(player)
       if (state.players[player] === null) {
         slot = player as PlayerKey
         break
@@ -68,17 +68,27 @@ export class GamesService {
 
     state.players[slot] = initializePlayer(user)
 
-    const { data: updated } = await axios.put<Game>(this.endpoint + game.id, {
-      state
-    })
+    await axios.put<Game>(this.endpoint + game.id, { state })
 
-    return updated
+    return toView(state, slot)
   }
 
-  async getGames(): Promise<Game[]> {
-    return (await axios.get<Game[]>(`${this.endpoint}all`, {
+  async getGames(): Promise<GameStateView[]> {
+    const games = (await axios.get<Game[]>(`${this.endpoint}all`, {
       params: {}
     })).data
+
+    return games.map(game => toView(JSON.parse(game.state.toString()), 'player_1'))
+  }
+
+  async getGame(key: string): Promise<GameStateView> {
+    const { data: game }= await axios.get<Game>(`${this.endpoint}`, {
+      params: {
+        key
+      }
+    })
+
+    return toView(game.state as unknown as GameState, 'player_1')
   }
   
   //async startGame(user: User, key: string): Promise<Game> {

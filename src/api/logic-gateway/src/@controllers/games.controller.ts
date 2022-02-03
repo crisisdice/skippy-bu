@@ -6,6 +6,7 @@ import {
   Get,
   Put,
   Body,
+  Query,
 } from '@nestjs/common'
 
 import {
@@ -32,6 +33,14 @@ export class GamesController {
   ) {}
 
   @Get('/')
+  @UseGuards(AuthGuard)
+  async getGame(
+    @Query('key') key: string
+  ) {
+    return await this.gamesService.getGame(key)
+  }
+
+  @Get('/all')
   @UseGuards(AuthGuard)
   async getGames() {
     return await this.gamesService.getGames()

@@ -7,7 +7,6 @@ import {
   Player,
   PlayerKey,
   PlayerView,
-  UserMetadata,
 } from '../types'
 
 function viewTopCard(pile: number[]): number | null {
@@ -27,7 +26,7 @@ function playerView(player: Player, turn: boolean): PlayerView {
     discard: pilesView(player.discard),
     stock: player.stock?.[0] ?? null,
     turn,
-    metadata: player.user.metadata as UserMetadata,
+    nickname: player.user.nickname
   }
 }
 
@@ -43,10 +42,12 @@ function mapPlayers(gs: GameState) {
   }, {} as Record<PlayerKey, PlayerView | null>)
 }
 
-export function toView(gs: GameState): GameStateView {
+export function toView(gs: GameState, yourKey: PlayerKey): GameStateView {
   return {
+    yourKey,
     building: pilesView(gs.building),
-    players: mapPlayers(gs)
+    players: mapPlayers(gs),
+    key: gs.key
   }
 }
 

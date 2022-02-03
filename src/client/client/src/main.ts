@@ -12,6 +12,14 @@ import {
   Game
 } from '@prisma/client'
 
+import {
+  toView
+} from 'engine'
+
+import {
+  printASCIIPlayerView
+} from './rendering'
+
 async function main() {
   let client: SecureClient | null = null
   let game: Game | null = null
@@ -28,8 +36,20 @@ async function main() {
 
     if (!game) console.error('no game')
   
-    console.log(game)
+    while (game) {
+      // TODO clean this up
+      //const state = typeof game.state === 'string' ? JSON.parse(game.state as string) : game.state
+      
+      const key = game.key
+      const updated = await client.fetchGame(key)
+      if (!updated) throw Error()
+      console.clear()
+      console.log(printASCIIPlayerView(game.yourKey, null, updated))
+      await sleep(1000 * 60)
+      // TODO poll for updates
+    }
   }
 }
+const sleep = (ms = 500) => new Promise((r) => setTimeout(r, ms))
 
 main()

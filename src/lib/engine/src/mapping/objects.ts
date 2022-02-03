@@ -24,8 +24,9 @@ export function initializePlayer(user: User): Player {
   }
 }
 
-export function initalizeGameState(creator: User): GameState {
+export function initalizeGameState(creator: User, key: string): GameState {
   return {
+    key,
     deck: [],
     discard: [],
     building: initializePiles(),

@@ -1,16 +1,14 @@
 import axios from 'axios'
 import {
   Credentials,
+  GameStateView,
 } from 'engine'
 
-import { Game } from '@prisma/client'
-
 const handleFrontendError = (e: any): null => {
-  console.log('Error')
-  console.log(JSON.stringify(e))
+  console.error('Error')
+  console.error(JSON.stringify(e))
   return null
 }
-
 
 export class LoginClient {
   private readonly client
@@ -21,7 +19,13 @@ export class LoginClient {
     this.client = axios.create({ baseURL })
   }
 
-  async login({ email, password }: { email: string, password: string }): Promise<string | null> {
+  async login({
+    email,
+    password
+  }: {
+    email: string
+    password: string
+  }): Promise<string | null> {
     try {
       const { data: token } = await this.client.post(`login`, {
         email,
@@ -33,7 +37,13 @@ export class LoginClient {
     }
   }
 
-  async register({ email, password, nickname }: Credentials & { nickname: string }): Promise<string | null> {
+  async register({
+    email,
+    password,
+    nickname
+  }: Credentials & {
+    nickname: string
+  }): Promise<string | null> {
     try {
       const { data: token } = await this.client.post(`register`, {
         email,
@@ -59,25 +69,33 @@ export class SecureClient {
     })
   }
 
-  async createGame() {
+  async createGame(): Promise<GameStateView | null> {
     try {
-      return (await this.client.post(`games`)).data
+      return (await this.client.post<GameStateView>(`games`)).data
     } catch (e) {
       return handleFrontendError(e)
     }
   }
   
-  async joinGame(id: number | string): Promise<Game | null> {
+  async joinGame(key: string): Promise<GameStateView | null> {
     try {
-      return (await this.client.put<Game>('games')).data
+      return (await this.client.put<GameStateView>('games', { key })).data
     } catch (e) {
       return handleFrontendError(e)
     }
   }
   
-  async fetchGames(): Promise<Game[]> {
+  async fetchGame(key: string): Promise<GameStateView | null> {
     try {
-      return (await this.client.get('games')).data
+      return (await this.client.get<GameStateView>('games', { params: { key } })).data
+    } catch (e) {
+      return handleFrontendError(e)
+    }
+  }
+  
+  async fetchGames(): Promise<GameStateView[]> {
+    try {
+      return (await this.client.get<GameStateView[]>('games')).data
     } catch (e) {
       return handleFrontendError(e) ?? []
     }

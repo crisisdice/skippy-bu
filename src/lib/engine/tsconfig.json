@@ -9,7 +9,8 @@
     "rootDir": "src/", 
     "strict": true,
     "outDir": "dist",
-    "declaration": true
+    "declaration": true,
+    "sourceMap": true
   },
   "exclude": ["node_modules", "dist/*"],
   "include": ["src"]

@@ -14,11 +14,14 @@ import {
   GameStateView,
   PilesView,
   PlayerKey,
-  PlayerView,
 } from 'engine'
 
-function renderGreeting(name: string, turn: boolean) {
-  return `   Hello ${ name }, it is ${ turn ? '' : 'not' } your turn.\n${
+function renderGreeting(name: string, turn: boolean | null) {
+  const greeting = turn === null
+    ? `Hello and welcome, ${ name }.`
+    : `   Hello ${ name }, it is ${ turn ? '' : 'not' } your turn.`
+
+  return `${greeting}\n${
     line
   }${
     bars
@@ -47,8 +50,6 @@ function renderHand(hand: number[]) {
   const cards = `${leftHandMargin}${hand.map(card => renderCard(card)).join('')}|${padding}`
 
   return `${
-    line
-  }${
     bars
   }${
     yourHand }${ edges
@@ -87,8 +88,7 @@ function renderPiles(name: string, piles: PilesView | null) {
 
 export function printASCIIPlayerView(
     position: PlayerKey,
-    turn: boolean,
-    hand: number[],
+    turn: boolean | null,
     view: GameStateView,
   ) {
     const player = view.players[position]
@@ -96,7 +96,7 @@ export function printASCIIPlayerView(
     if (player === null) throw new Error('Missing player')
 
     return `${
-      renderGreeting(player.metadata.nickname, turn)
+      renderGreeting(player.nickname, turn)
     }${
       renderPiles('Shared piles:', view.building)
     }${
@@ -107,10 +107,13 @@ export function printASCIIPlayerView(
             .filter(key => view.players[key as PlayerKey] !== null)
             .map(key => {
               const player = view.players[key as PlayerKey]
-              return renderPiles(player!.metadata.nickname, player!.discard)
+              return renderPiles(player!.nickname, player!.discard)
             }).join('')
     }${
-      renderHand(hand)
+      line
+    }${
+      //renderHand(hand)
+      ''
     }`
 }
 

@@ -1,24 +1,22 @@
 import 'dotenv/config'  
 
 import { createSpinner } from 'nanospinner'
-
-import { Game } from '@prisma/client'
-
 import { SecureClient} from '../utils'
 import { listQuestion } from '../utils'
+import { GameStateView } from 'engine'
 
 async function initialMethod() {
   const method = await listQuestion('What you you like to do?', ['Join a game', 'Create a game'])
   return method === 'Join a game'
 }
 
-async function listGames(games: Game[]) {
+async function listGames(games: GameStateView[]) {
   if (!games.length) return null
   // TODO figure out how to use objects with inquirer
   return await listQuestion('Choose a game', games.map(game => game.key))
 }
 
-export async function findGame(client: SecureClient) {
+export async function findGame(client: SecureClient): Promise<GameStateView> {
   await title()
   while(true) {
     const join = await initialMethod()
@@ -27,9 +25,9 @@ export async function findGame(client: SecureClient) {
     const fetch = await (join ? client.fetchGames() : client.createGame())
     spinner.success()
 
-    if (fetch && !join) return fetch
+    if (fetch && !join) return fetch as GameStateView
 
-    const key = await listGames(fetch)
+    const key = await listGames(fetch as GameStateView[])
     const game = await client.joinGame(key)
     if (!fetch || !game) throw new Error('No game :( !')
     console.clear()
