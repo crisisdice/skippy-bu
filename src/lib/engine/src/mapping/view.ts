@@ -32,7 +32,7 @@ function playerView(player: Player, turn: boolean): PlayerView {
 
 function mapPlayers(gs: GameState) {
   return Object.keys(gs.players).reduce((players, iKey) => {
-    const key  = iKey as PlayerKey
+    const key = iKey as PlayerKey
     const player = gs.players[key]
     const playersTurn = gs.activePlayer === key
 

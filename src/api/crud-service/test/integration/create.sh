@@ -1,0 +1,1 @@
+http post localhost:3001/games/ 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJhbGV4LWRhaWx5LTAwMSIsImlhdCI6MTY0MzU3ODUyMSwiZXhwIjoxNjQ0MTgzMzIxLCJpc3MiOiJza2lwcHktYnUifQ.CConNwkH946x422PTlFbApZIIRgzaXVc4GT5lJ0VHJ4'

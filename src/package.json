@@ -1,18 +1,10 @@
 {
   "name": "api",
   "version": "1.0.0",
-  "description": "REST API for the inventory management app.",
-  "main": "index.js",
-  "scripts": {
-    "test": "(cd apps/crud-service && yarn test && yarn test:e2e)",
-    "build:libs": "(cd lib/prisma-service && yarn build) && (cd lib/engine && yarn build) && (cd lib/base-service && yarn build) && (cd lib/crud-controller && yarn build) && (cd lib/constants && yarn build)",
-    "build:api": "(cd api/logic-gateway && yarn build) && (cd api/crud-service && yarn build)",
-    "build:client": "(cd client/client && yarn build)",
-    "build": "yarn build:libs && yarn build:api && yarn build:client",
-    "test": "(cd client/client && yarn build && yarn start)"
-  },
-  "author": "Alexander Daily",
+  "description": "REST API app with cards.",
   "private": true,
+  "scripts": {},
+  "author": "Alexander Daily",
   "workspaces": {
     "packages": [
       "api/*",
@@ -23,7 +15,6 @@
   "resolutions": {
     "**/@prisma/client": "3.7.0",
     "**/prisma": "3.7.0",
-    "**/rxjs": "7.5.2",
     "**/typescript": "4.5.4"
   },
   "devDependencies": {

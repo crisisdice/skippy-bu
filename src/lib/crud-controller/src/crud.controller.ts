@@ -3,10 +3,9 @@ import {
   Post,
   Body,
   Put,
-  Param,
   Delete,
-  ParseIntPipe,
-  Query
+  Query as QueryFilter,
+  Logger,
 } from '@nestjs/common'
 
 import {
@@ -14,46 +13,66 @@ import {
 } from 'base-service'
 
 import {
-  CreateInput,
-  UpdateType,
-  Query as IQuery
+  Create,
+  Update,
+  Query,
 } from 'prisma-service'
 
-const ID = ':id'
+import {
+  ValidationPipe
+} from './validation.pipe'
 
 /**/
 export class CrudController {
+  readonly service: BaseService
+  readonly logger: Logger
   constructor(
-    private readonly service: BaseService
-  ) {}
+    _service: BaseService,
+    _logger: Logger
+  ) {
+    this.service = _service
+    this.logger = _logger
+  }
 
   @Post()
-  create(@Body() createData: CreateInput) {
+  create(
+    @Body() createData: Create
+  ) {
+    this.logger.log('Executing create()')
+
     return this.service.create(createData)
   }
 
   @Get()
-  findByQuery(@Query() query: IQuery) {
-    return this.service.findOne({ where: query })
+  findOne(
+    @QueryFilter(ValidationPipe) query: Query
+  ) {
+    this.logger.log('Executing findOne()')
+
+    return this.service.findOne(query)
   }
 
   @Get('all')
   findAll() {
+    this.logger.log('Executing findAll()')
     return this.service.findAll()
   }
 
-  @Get(ID)
-  findById(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne({ where: { id } })
+  @Put()
+  update(
+    @QueryFilter(ValidationPipe) query: Query,
+    @Body() updateData: Update
+  ) {
+    this.logger.log('Executing update()')
+    return this.service.update(query, updateData)
   }
 
-  @Put(ID)
-  updateById(@Param('id', ParseIntPipe) id: number, @Body() updateData: UpdateType) {
-    return this.service.updateById(id, updateData)
-  }
-
-  @Delete(ID)
-  deleteById(@Param('id', ParseIntPipe) id: number) {
-    return this.service.deleteById(id)
+  @Delete()
+  delete(
+    @QueryFilter(ValidationPipe) query: Query,
+  ) {
+    this.logger.log('Executing delete()')
+    return this.service.delete(query)
   }
 }
+

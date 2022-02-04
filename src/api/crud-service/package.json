@@ -2,7 +2,7 @@
   "name": "crud-service",
   "version": "1.0.0",
   "scripts": {
-    "start": "nest start --watch | pino-pretty",
+    "start": "nest start --watch",
     "build": "nest build",
     "test": "jest",
     "test:e2e": "jest --config ./test/jest-e2e.json"
@@ -13,11 +13,7 @@
     "@nestjs/core": "^8.2.6",
     "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/platform-express": "^8.2.6",
-    "base-service": "1.0.0",
-    "crud-controller": "1.0.0",
-    "nestjs-pino": "^2.5.0",
-    "pino-http": "^6.6.0",
-    "prisma-service": "1.0.0",
+    "crud-lib": "1.0.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
@@ -26,7 +22,6 @@
     "@types/jest": "^27.4.0",
     "@types/supertest": "^2.0.11",
     "jest": "^27.4.7",
-    "pino-pretty": "^7.5.0",
     "source-map-support": "^0.5.21",
     "supertest": "^6.2.2",
     "ts-jest": "^27.1.3"
