@@ -7,9 +7,10 @@
   "author": "Alexander Daily",
   "workspaces": {
     "packages": [
-      "api/*",
-      "client/*",
-      "lib/*"
+      "./client/",
+      "./engine",
+      "./crud-service/",
+      "./logic-gateway/"
     ]
   },
   "resolutions": {
