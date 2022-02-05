@@ -46,7 +46,7 @@ export function setupCreate<C, D, U, S, R>(args: InternalArgs<C, D, U, S, R> & {
   }
 }
 
-export function setupLocate<C, D, U extends { id?: any }, S, R>(args: InternalArgs<C, D, U, S, R> & { validateLocate: (query: U) => U }) {
+export function setupLocate<C, D, U, S, R>(args: InternalArgs<C, D, U, S, R> & { validateLocate: (query: U) => U }) {
   return async (query: U): Promise<R> => {
     const { logger, route, validateLocate, delegate } = args
 

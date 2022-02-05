@@ -10,28 +10,27 @@ import {
 
 import {
   PrismaController,
-  DelegateType,
   PrismaService,
 } from 'prisma-controller'
 
-const key = 'user'
-const url = `${key}s`
-
-type C = Prisma.UserCreateInput
-type D = Prisma.UserUpdateInput
-type U = Prisma.UserWhereUniqueInput
-type S = Prisma.UserWhereInput
-type R = User
+const url = 'users'
 
 /**/
 @Controller(url)
-export class UsersController extends PrismaController<C, D, U, S, R> {
+export class UsersController extends PrismaController
+  <
+    Prisma.UserCreateInput,
+    Prisma.UserUpdateInput,
+    Prisma.UserWhereUniqueInput,
+    Prisma.UserWhereInput,
+    User
+  > {
   constructor(
     prisma: PrismaService,
   ) {
     const logger = new Logger(UsersController.name)
     super(
-      prisma[key] as unknown as DelegateType<C, D, U, S, R>,
+      prisma.user,
       logger,
       url,
       ['id', 'key', 'email'],

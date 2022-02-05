@@ -5,38 +5,37 @@ import {
 
 import {
   Prisma,
-  Game,
+  Game,  // *
 } from '@prisma/client'
 
 import {
   PrismaController,
-  DelegateType,
   PrismaService,
 } from 'prisma-controller'
 
-const key = 'game'
-const url = `${key}s`
-
-type C = Prisma.GameCreateInput
-type D = Prisma.GameUpdateInput
-type U = Prisma.GameWhereUniqueInput
-type S = Prisma.GameWhereInput
-type R = Game
+const url = 'games' // *
 
 /**/
 @Controller(url)
-export class GamesController extends PrismaController<C, D, U, S, R> {
+export class GamesController extends PrismaController // *
+  <
+    Prisma.GameCreateInput, // *
+    Prisma.GameUpdateInput, // *
+    Prisma.GameWhereUniqueInput, // *
+    Prisma.GameWhereInput, // *
+    Game // *
+  > {
   constructor(
     prisma: PrismaService,
   ) {
-    const logger = new Logger(GamesController.name)
+    const logger = new Logger(GamesController.name) // *
     super(
-      prisma[key] as unknown as DelegateType<C, D, U, S, R>,
+      prisma.game, // *
       logger,
       url,
-      ['id', 'key'],
-      [],
-      ['id'],
+      ['id', 'key'], // *
+      [], // *
+      ['id'], // *
     )
   }
 }

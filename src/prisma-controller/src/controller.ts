@@ -49,17 +49,13 @@ export class PrismaController<C, D, U, S, R> {
     requiredKeys: (keyof C)[],
     numericalKeys: (keyof U)[],
   ) {
-    const validateCreate = setupValidateCreate<C>(requiredKeys)
-    const validateLocate = setupValidateLocate<U>(uniqueKeys, numericalKeys)
-    const validateSearch = setupValidateSearch<S>([])
-    const validateUpdate = setupValidateUpdate<U, D>(uniqueKeys, numericalKeys)
-    const validateDelete = setupValidateDelete<U>(uniqueKeys, numericalKeys)
+    const shared = { logger, route, delegate }
 
-    this.createInternal = setupCreate({ logger, route, delegate, validateCreate })
-    this.locateInternal = setupLocate({ logger, route, delegate, validateLocate })
-    this.searchInternal = setupSearch({ logger, route, delegate, validateSearch })
-    this.updateInternal = setupUpdate({ logger, route, delegate, validateUpdate })
-    this.deleteInternal = setupDelete({ logger, route, delegate, validateDelete })
+    this.createInternal = setupCreate({ ...shared, validateCreate: setupValidateCreate<C>(requiredKeys) })
+    this.locateInternal = setupLocate({ ...shared, validateLocate: setupValidateLocate<U>(uniqueKeys, numericalKeys) })
+    this.searchInternal = setupSearch({ ...shared, validateSearch: setupValidateSearch<S>([]) }) // TODO 
+    this.updateInternal = setupUpdate({ ...shared, validateUpdate: setupValidateUpdate<U, D>(uniqueKeys, numericalKeys) })
+    this.deleteInternal = setupDelete({ ...shared, validateDelete: setupValidateDelete<U>(uniqueKeys, numericalKeys) })
   }
 
   @Post()
