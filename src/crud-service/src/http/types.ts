@@ -4,7 +4,7 @@ import {
   UpdatePayload,
   UniqueFilter,
   GenericFilter,
-} from './prisma-types'
+} from '../generated/types'
 
 export type CreateArgs = {
   data: CreatePayload

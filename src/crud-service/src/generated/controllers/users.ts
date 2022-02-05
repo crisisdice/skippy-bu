@@ -5,19 +5,16 @@ import {
 
 import {
   CrudController,
-} from '../crud-controller'
+  DelegateType,
+} from '../../http'
 
 import {
   PrismaService,
-} from '../prisma'
+} from '../../prisma'
 
 import {
   URL
 } from '../constants'
-
-import {
-  DelegateType
-} from '../method-types'
 
 const key = 'user'
 const url = URL[key]

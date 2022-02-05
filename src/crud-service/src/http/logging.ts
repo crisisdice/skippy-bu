@@ -3,11 +3,11 @@ import {
   GenericFilter,
   CreatePayload,
   UpdatePayload,
-} from './prisma-types'
+} from '../generated/types'
 
 import {
   GET 
-} from './constants'
+} from '../generated/constants'
 
 const toLogString = (
   verb: string,

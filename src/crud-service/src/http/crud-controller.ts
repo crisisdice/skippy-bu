@@ -14,22 +14,22 @@ import {
   GenericFilter,
   CreatePayload,
   UpdatePayload,
-} from './prisma-types'
+} from '../generated/types'
 
 import {
   DelegateType,
-} from './method-types'
+} from './types'
 
 import {
   GET 
-} from './constants'
+} from '../generated/constants'
 
 import {
   ValidateCreate,
   ValidateUpdate,
   ValidateUnique,
   ValidateSearch,
-} from './validation'
+} from '../generated/validation'
 
 import {
   logGetOne,
