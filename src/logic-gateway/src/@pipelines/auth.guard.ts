@@ -27,7 +27,7 @@ export class AuthGuard implements CanActivate {
 
       const decoded = verify(token, 'secret') as Token
 
-      const { data: user } = await axios.get('http://localhost:3000/users', {
+      const { data: user } = await axios.get('http://localhost:3000/users/locate', {
         params: {
           key: decoded.key
         }

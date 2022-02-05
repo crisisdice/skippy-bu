@@ -13,17 +13,15 @@ import {
 } from '@prisma/client'
 
 import {
-  toView
-} from 'engine'
-
-import {
   printASCIIPlayerView
 } from './rendering'
 
 async function main() {
   let client: SecureClient | null = null
   let game: Game | null = null
-  const url = process.env.API ?? ''
+  const url = process.env.API
+
+  if (!url) throw new Error('API URL not set')
 
   while(client === null && game === null) {
     const token = await authorization(new LoginClient(url))

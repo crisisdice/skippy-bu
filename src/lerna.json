@@ -1,0 +1,9 @@
+{
+  "packages": [
+    "./client/",
+    "./engine/",
+    "./crud-service/",
+    "./logic-gateway/"
+  ],
+  "version": "0.0.0"
+}

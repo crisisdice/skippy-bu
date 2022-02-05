@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "REST API app with cards.",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "test": "(cd ./client && yarn build && yarn start)"
+  },
   "author": "Alexander Daily",
   "workspaces": {
     "packages": [
@@ -19,6 +21,7 @@
     "**/typescript": "4.5.4"
   },
   "devDependencies": {
+    "lerna": "^4.0.0",
     "rxjs": "^7.5.2"
   }
 }

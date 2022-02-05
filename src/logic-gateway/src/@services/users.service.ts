@@ -32,27 +32,27 @@ export class UsersService {
     private readonly configService: ConfigService
   ) {
     this.endpoint = `${this.configService.get<string>('CRUD_URL')}/users`
-    this.secret = this.configService.get<string>('SECRET')
+    this.secret = this.configService.get<string>('SECRET') ?? ''
   }
 
   public async register(credentials: Credentials): Promise<string> {
     const { email, password, nickname } = credentials
     //TODO get this down to one fetch
-    const { data: sameEmail } = await axios.get<User>(
-      this.endpoint, {
+    const { data: sameEmail } = await axios.get<User[]>(
+      this.endpoint + '/search', {
       params: {
         email
       }
     })
-    const { data: sameNickname } = await axios.get<User>(
-      this.endpoint, {
+    const { data: sameNickname } = await axios.get<User[]>(
+      this.endpoint + '/search', {
       params: {
         nickname
       }
     })
 
-    if (!!sameEmail) throw new HttpException('Email taken', 400)
-    if (!!sameNickname) throw new HttpException('Nickname taken', 400)
+    if (sameEmail.length) throw new HttpException('Email taken', 400)
+    if (sameNickname.length) throw new HttpException('Nickname taken', 400)
 
     const { data: user } = await axios.post<User>(this.endpoint, {
       key: hash(credentials),
@@ -69,7 +69,7 @@ export class UsersService {
     if (!email || !password) throw new HttpException('', 400)
 
     const { data: user } = await axios.get<User>(
-      this.endpoint, {
+      this.endpoint + '/locate', {
       params: {
         email
       }

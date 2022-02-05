@@ -1,4 +1,5 @@
 import axios from 'axios'
+
 import {
   Credentials,
   GameStateView,
@@ -12,11 +13,15 @@ const handleFrontendError = (e: any): null => {
 
 export class LoginClient {
   private readonly client
+  private b
   constructor(
     api: string,
   ) {
-    const baseURL = `${api}users`
+    const baseURL = `${api}/users`
+    console.log(baseURL)
+    this.b = baseURL
     this.client = axios.create({ baseURL })
+    if(!this.client) throw new Error('Axios fail')
   }
 
   async login({
@@ -33,7 +38,10 @@ export class LoginClient {
       })
       return token
     } catch (e) {
-      return handleFrontendError(e)
+      console.log(this.b)
+      console.log(JSON.stringify(this.client))
+      throw e
+      //return handleFrontendError(e)
     }
   }
 
@@ -95,7 +103,7 @@ export class SecureClient {
   
   async fetchGames(): Promise<GameStateView[]> {
     try {
-      return (await this.client.get<GameStateView[]>('games')).data
+      return (await this.client.get<GameStateView[]>('games/all')).data
     } catch (e) {
       return handleFrontendError(e) ?? []
     }
