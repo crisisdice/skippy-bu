@@ -11,10 +11,8 @@
     "@nestjs/common": "^8.2.6",
     "@nestjs/config": "^1.1.6",
     "@nestjs/core": "^8.2.6",
-    "@nestjs/mapped-types": "^1.0.1",
     "@nestjs/platform-express": "^8.2.6",
     "axios": "^0.25.0",
-    "engine": "1.0.0",
     "jsonwebtoken": "^8.5.1",
     "object-hash": "^2.2.0",
     "reflect-metadata": "^0.1.13"

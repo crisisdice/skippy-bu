@@ -4,13 +4,13 @@
   "description": "REST API app with cards.",
   "private": true,
   "scripts": {
-    "test": "(cd ./client && yarn build && yarn start)"
+    "test": "(cd ./client && yarn build && yarn start)",
+    "build": "(cd ./client && yarn build) && (cd ./crud-service && yarn build) && (cd ./logic-gateway && yarn build)"
   },
   "author": "Alexander Daily",
   "workspaces": {
     "packages": [
       "./client/",
-      "./engine/",
       "./crud-service/",
       "./logic-gateway/"
     ]

@@ -21,7 +21,7 @@ import {
   GameStateView,
   toView,
   GameState,
-} from 'engine'
+} from '../engine'
 
 import hash from 'object-hash'
 
