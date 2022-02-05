@@ -23,7 +23,7 @@ import {
 import {
   GamesController,
   UsersController
-} from './generated/controllers'
+} from './controllers'
 
 /**/
 @Module({
