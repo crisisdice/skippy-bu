@@ -8,7 +8,7 @@ import {
 
 import {
   Prisma,
-  Game,
+  Game as IGame,
   User
 } from '@prisma/client'
 
@@ -20,9 +20,12 @@ import {
   initializePlayer,
   GameStateView,
   toView,
+  GameState,
 } from 'engine'
 
 import hash from 'object-hash'
+
+type Game = Omit<IGame, 'state'> & { state: GameState }
 
 /**/
 @Injectable()
@@ -41,14 +44,13 @@ export class GamesService {
       creator: { connect: { key: user.key } },
       key,
       metadata: { test: "test" },
-      state: JSON.stringify(createGameState(user, key)),
+      state: createGameState(user, key),
     } as Prisma.GameCreateInput
 
     const { data: game } = await axios.post<Game>(this.endpoint, payload)
 
-    if (!game || !game?.state) throw new Error('')
-
-    return toView(JSON.parse(game.state.toString()), 'player_1')
+    if (!game) throw new Error('')
+    return toView(game.state, 'player_1')
   }
 
   async joinGame(user: User, key: string): Promise<GameStateView> {
@@ -57,11 +59,11 @@ export class GamesService {
         key
       }
     })
-    if (!game || !game?.state) throw new Error('')
-    const state = JSON.parse(game.state.toString()) //as unknown as GameState
+    if (!game) throw new Error('')
+    const state = game.state
     let slot: PlayerKey = 'player_1'
     for (const player of Object.keys(state.players)) {
-      if (state.players[player] === null) {
+      if (state.players[player as PlayerKey] === null) {
         slot = player as PlayerKey
         break
       }
@@ -76,9 +78,8 @@ export class GamesService {
   }
 
   async getGames(): Promise<GameStateView[]> {
-    const games = (await axios.get<Game[]>(`${this.endpoint}/search`)).data
-
-    return games.map(game => toView(JSON.parse(game?.state?.toString() ?? ''), 'player_1'))
+    const games = (await axios.get<Game[]>(this.endpoint + '/search')).data
+    return games.map(game => toView(game.state, 'player_1'))
   }
 
   async getGame(key: string): Promise<GameStateView> {
@@ -87,9 +88,8 @@ export class GamesService {
         key
       }
     })
-    if (!game || !game?.state) throw new Error('')
-
-    return toView(JSON.parse(game.state.toString()), 'player_1')
+    if (!game) throw new Error('')
+    return toView(game.state, 'player_1')
   }
   
   //async startGame(user: User, key: string): Promise<Game> {
