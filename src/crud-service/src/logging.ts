@@ -3,10 +3,10 @@ import {
   GenericFilter,
   CreatePayload,
   UpdatePayload,
-} from './types'
+} from './prisma-types'
 
 import {
-  endpoints
+  GET 
 } from './constants'
 
 const toLogString = (
@@ -26,17 +26,17 @@ const toLogString = (
 }
 
 export const logPost = (body: CreatePayload, base: string) =>
-  toLogString('POST', `/${base}`, 'create()', undefined, body)
+  toLogString('POST', `${base}`, 'create()', undefined, body)
 
 export const logGetOne = (query: UniqueFilter, base: string) =>
-  toLogString('GET', `/${base}/${endpoints.locate}`, 'locate()', query)
+  toLogString('GET', `${base}/${GET.ONE}`, 'locate()', query)
 
 export const logPut = (query: UniqueFilter, body: UpdatePayload, base: string) =>
-  toLogString('PUT', `/${base}`, 'update()', query, body)
+  toLogString('PUT', `${base}`, 'update()', query, body)
 
 export const logGetMany = (query: GenericFilter, base: string) =>
-  toLogString('GET', `/${base}/${endpoints.search}`, 'search()', query)
+  toLogString('GET', `${base}/${GET.MANY}`, 'search()', query)
 
 export const logDelete = (query: UniqueFilter, base: string) => 
-  toLogString('DELETE', `/${base}`, 'delete()', query)
+  toLogString('DELETE', `${base}`, 'delete()', query)
 

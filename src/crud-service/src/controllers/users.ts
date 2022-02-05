@@ -5,15 +5,22 @@ import {
 
 import {
   CrudController,
-  DelegateType,
-  base,
-} from '../http'
+} from '../crud-controller'
 
 import {
   PrismaService,
 } from '../prisma'
 
-const url = base.users
+import {
+  URL
+} from '../constants'
+
+import {
+  DelegateType
+} from '../method-types'
+
+const key = 'user'
+const url = URL[key]
 
 /**/
 @Controller(url)
@@ -23,7 +30,7 @@ export class UsersController extends CrudController {
     logger: Logger
   ) {
     super(
-      prisma.user as unknown as DelegateType,
+      prisma[key] as unknown as DelegateType,
       logger,
       url
     )
