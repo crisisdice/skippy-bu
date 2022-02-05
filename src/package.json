@@ -8,7 +8,7 @@
   "workspaces": {
     "packages": [
       "./client/",
-      "./engine",
+      "./engine/",
       "./crud-service/",
       "./logic-gateway/"
     ]

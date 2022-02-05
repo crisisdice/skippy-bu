@@ -1,7 +1,7 @@
 import {
   Global,
   OnModuleInit,
-  OnModuleDestroy
+  OnModuleDestroy,
 } from '@nestjs/common'
 
 import {
