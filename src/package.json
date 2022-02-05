@@ -10,9 +10,10 @@
   "author": "Alexander Daily",
   "workspaces": {
     "packages": [
-      "./client/",
-      "./crud-service/",
-      "./logic-gateway/"
+      "client",
+      "crud-service",
+      "prisma-controller",
+      "logic-gateway"
     ]
   },
   "resolutions": {

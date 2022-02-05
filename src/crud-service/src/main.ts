@@ -18,7 +18,7 @@ from 'body-parser'
 
 import {
   PrismaService
-} from './prisma'
+} from 'crud-controller'
 
 import {
   GamesController,

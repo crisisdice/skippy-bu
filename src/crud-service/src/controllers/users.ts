@@ -4,68 +4,39 @@ import {
 } from '@nestjs/common'
 
 import {
-  CrudController,
-} from '../crud-controller'
-
-import {
-  DelegateType,
-} from '../types'
-
-import {
-  PrismaService,
-} from '../prisma'
-
-import {
   Prisma,
-  Game,
+  User,
 } from '@prisma/client'
 
-const key = 'game'
+import {
+  PrismaController,
+  DelegateType,
+  PrismaService,
+} from 'prisma-controller'
+
+const key = 'user'
 const url = `${key}s`
 
-type C = Prisma.GameCreateInput
-type D = Prisma.GameUpdateInput
-type U = Prisma.GameWhereUniqueInput
-type S = Prisma.GameWhereInput
-type R = Game
-
-const validateCreate = (logger: Logger, route: string) => {
-  return (body: C) => body
-}
-
-const validateLocate = (logger: Logger, route: string) => {
-  return (query: U) => query
-}
-
-const validateSearch = (logger: Logger, route: string) => {
-  return (query: S) => query
-}
-
-const validateUpdate = (logger: Logger, route: string) => {
-  return (query: U, body: D) => { return { where: query, data: body } }
-}
-
-const validateDelete = (logger: Logger, route: string) => {
-  return (query: U) => query
-}
+type C = Prisma.UserCreateInput
+type D = Prisma.UserUpdateInput
+type U = Prisma.UserWhereUniqueInput
+type S = Prisma.UserWhereInput
+type R = User
 
 /**/
 @Controller(url)
-export class GamesController extends CrudController<C, D, U, S, R> {
+export class UsersController extends PrismaController<C, D, U, S, R> {
   constructor(
     prisma: PrismaService,
-    logger: Logger
   ) {
+    const logger = new Logger(UsersController.name)
     super(
       prisma[key] as unknown as DelegateType<C, D, U, S, R>,
-      validateCreate,
-      validateLocate,
-      validateSearch,
-      validateUpdate,
-      validateDelete,
       logger,
-      url
+      url,
+      ['id', 'key', 'email'],
+      [],
+      ['id'],
     )
   }
 }
-

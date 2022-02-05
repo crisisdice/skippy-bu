@@ -1,5 +1,5 @@
 {
-  "name": "crud-lib",
+  "name": "crud-service",
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
@@ -24,6 +24,7 @@
     "@nestjs/platform-express": "^8.2.6",
     "@prisma/client": "3.7.0",
     "body-parser": "^1.19.1",
+    "prisma-controller": "1.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.5.2"
   },
