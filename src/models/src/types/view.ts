@@ -16,3 +16,27 @@ export type PlayerView = {
 
 export type PilesView = Record<PileKey, number | null>
 
+export enum Action {
+  CREATE,
+  JOIN,
+  START,
+  PLAY,
+  DISCARD,
+}
+
+export enum Source {
+  HAND,
+  STOCK,
+  DISCARD,
+}
+
+export type Message = {
+  token: string // for auth and to get user
+  key: string   // to find game
+  action: Action
+}
+
+export type Move = {
+  source: Source
+  card: number
+}

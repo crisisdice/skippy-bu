@@ -10,14 +10,18 @@ import {
   GameClient,
 } from './utils'
 
+import { Action } from 'skip-models'
+
 async function main() {
   const { apiURL, wsURL } = readEnv()
 
   const token = await authorization(new LoginClient(apiURL))
 
-  const gameKey = await gameLobby(new SecureClient(apiURL, token))
+  const { key, created } = await gameLobby(new SecureClient(apiURL, token))
   
-  await gamePlay(new GameClient(wsURL, token, gameKey))
+  const action = created ? Action.CREATE : Action.JOIN
+
+  await gamePlay(new GameClient(wsURL, token, key, action))
 }
 
 function readEnv() {

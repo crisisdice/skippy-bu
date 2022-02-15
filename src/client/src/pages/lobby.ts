@@ -29,7 +29,7 @@ async function listGames(games: GameStateView[]): Promise<string> {
   }))
 }
 
-export async function gameLobby(client: SecureClient): Promise<string> {
+export async function gameLobby(client: SecureClient): Promise<{ key: string, created: boolean }> {
   await title()
 
   while(true) {
@@ -39,14 +39,14 @@ export async function gameLobby(client: SecureClient): Promise<string> {
     const games = await (isCreate ? client.createGame() : client.fetchGames())
     spinner.success()
     console.clear()
-    if (isCreate) return (games as GameStateView).key
+    if (isCreate) return { key: (games as GameStateView).key, created: true }
     //TODO if games === [] show error
     const game = await listGames(games as GameStateView[])
     spinner.start()
     const key = (await client.joinGame(game)).key
     spinner.success()
     console.clear()
-    return key
+    return { key, created: false }
   }
 }
 

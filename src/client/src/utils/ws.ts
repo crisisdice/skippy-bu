@@ -1,31 +1,40 @@
+import {
+  GameStateView,
+  Action
+} from 'skip-models'
 import WebSocket from 'ws'
+import {printASCIIPlayerView} from '../rendering'
+
 
 export class GameClient {
-  public stack: string[] = []
-  private readonly gameKey
+  //public stack: string[] = []
+  private ws
   constructor(
     wsURL: string,
     token: string,
     key: string,
+    initalAction: Action
   ) {
     const ws = new WebSocket(wsURL)
-    this.gameKey = key
-
-
     ws.on('open', () => {
       ws.send(
         JSON.stringify({
           token,
-          key
+          key,
+          action: initalAction
         })
       )
     })
 
     ws.on('message', (data) => {
-      console.log('message: %s', data) 
-      //this.stack.push(data.toString())
+      const view = JSON.parse(data.toString()) as GameStateView
+      console.clear()
+      console.log(printASCIIPlayerView(view.yourKey, null, view))
     })
+
+    this.ws = ws
   }
 
-  public key() { return this.gameKey }
+
+
 }
