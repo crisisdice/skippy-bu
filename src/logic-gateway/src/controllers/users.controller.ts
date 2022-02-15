@@ -6,7 +6,7 @@ import {
 
 import {
   UsersService
-} from '../@services'
+} from '../services'
 
 import { Credentials } from 'skip-models'
 

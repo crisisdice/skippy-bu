@@ -11,19 +11,16 @@ import {
 
 import {
   GamesService
-} from '../@services'
+} from '../services'
 
 import {
   Response as IResponse
 } from 'express'
 
 import {
-  AuthGuard
-} from '../@pipelines/auth.guard'
-
-import {
+  AuthGuard,
   getUser
-} from '../@utils/getUser'
+} from '../utils'
 
 /**/
 @Controller('games')

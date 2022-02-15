@@ -1,4 +1,16 @@
 import {
+  Module
+} from '@nestjs/common'
+
+import {
+  ConfigModule,
+} from '@nestjs/config'
+
+import {
+  LoggerModule
+} from 'nestjs-pino'
+
+import {
   NestFactory
 } from '@nestjs/core'
 
@@ -14,11 +26,36 @@ import {
   Logger
 } from 'nestjs-pino'
 
-import {
-  AppModule
-} from './@modules'
-
 import { WebSocketServer } from 'ws';
+import {GamesController, UsersController} from './controllers'
+import {GamesService, UsersService} from './services'
+
+/**/
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+    }),
+    LoggerModule.forRootAsync({
+      useFactory: async () => {
+        return {
+          pinoHttp: {
+          },
+        }
+      }
+    }),
+  ],
+  providers: [
+    GamesService,
+    UsersService,
+  ],
+  controllers: [
+    GamesController,
+    UsersController,
+  ]
+})
+class AppModule {}
 
 /**/
 async function bootstrap() {

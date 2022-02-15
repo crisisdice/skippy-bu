@@ -5,7 +5,7 @@ import {
 
 import {
   GamesService
-} from '../../@services'
+} from '../../services'
 
 import {
   GamesController
