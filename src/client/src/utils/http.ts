@@ -3,23 +3,24 @@ import axios from 'axios'
 import {
   Credentials,
   GameStateView,
-} from 'engine'
+} from '../engine'
 
 const handleFrontendError = (e: any): null => {
   console.error('Error')
   console.error(JSON.stringify(e))
   return null
+//
+//      console.log(this.b)
+//      console.log(JSON.stringify(this.client))
+//      throw e
 }
 
 export class LoginClient {
   private readonly client
-  private b
   constructor(
     api: string,
   ) {
     const baseURL = `${api}/users`
-    console.log(baseURL)
-    this.b = baseURL
     this.client = axios.create({ baseURL })
     if(!this.client) throw new Error('Axios fail')
   }
@@ -38,10 +39,7 @@ export class LoginClient {
       })
       return token
     } catch (e) {
-      console.log(this.b)
-      console.log(JSON.stringify(this.client))
-      throw e
-      //return handleFrontendError(e)
+      return handleFrontendError(e)
     }
   }
 
@@ -79,7 +77,7 @@ export class SecureClient {
 
   async createGame(): Promise<GameStateView | null> {
     try {
-      return (await this.client.post<GameStateView>(`games`)).data
+      return (await this.client.post<GameStateView>('games')).data
     } catch (e) {
       return handleFrontendError(e)
     }
@@ -111,5 +109,13 @@ export class SecureClient {
   
   async startGame() {
     // TODO
+    //ws.on('open', function open() {
+    //  ws.send('something');
+    //});
+    //
+    //ws.on('message', function message(data) {
+    //  console.log('received: %s', data);
+    //});
   }
 }
+

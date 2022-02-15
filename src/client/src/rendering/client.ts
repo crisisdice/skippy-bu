@@ -14,7 +14,7 @@ import {
   GameStateView,
   PilesView,
   PlayerKey,
-} from 'engine'
+} from '../engine'
 
 function renderGreeting(name: string, turn: boolean | null) {
   const greeting = turn === null

@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { createSpinner } from 'nanospinner'
 import { SecureClient} from '../utils'
 import { listQuestion } from '../utils'
-import { GameStateView } from 'engine'
+import { GameStateView } from '../engine'
 
 async function initialMethod() {
   const method = await listQuestion('What you you like to do?', ['Join a game', 'Create a game'])
@@ -16,7 +16,7 @@ async function listGames(games: GameStateView[]) {
   return await listQuestion('Choose a game', games.map(game => game.key))
 }
 
-export async function findGame(client: SecureClient): Promise<GameStateView> {
+export async function gameLobby(client: SecureClient): Promise<string> {
   await title()
   while(true) {
     const join = await initialMethod()
@@ -25,13 +25,13 @@ export async function findGame(client: SecureClient): Promise<GameStateView> {
     const fetch = await (join ? client.fetchGames() : client.createGame())
     spinner.success()
 
-    if (fetch && !join) return fetch as GameStateView
+    if (fetch && !join) return (fetch as GameStateView).key
 
     const key = await listGames(fetch as GameStateView[])
     const game = await client.joinGame(key)
     if (!fetch || !game) throw new Error('No game :( !')
     console.clear()
-    return game
+    return game.key
   }
 }
 
