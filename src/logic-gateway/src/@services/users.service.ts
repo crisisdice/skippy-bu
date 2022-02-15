@@ -67,17 +67,21 @@ export class UsersService {
 
   public async login({ email, password }: Credentials): Promise<string> {
     if (!email || !password) throw new HttpException('', 400)
-
-    const { data: user } = await axios.get<User>(
-      this.endpoint + '/locate', {
-      params: {
-        email
-      }
-    })
-    if (!user) throw new HttpException('User not found', 404)
-    if (!(hash(password) === user.password)) throw new HttpException('Wrong password', 403)
     
-    return this.signToken(user.key)
+    try {
+      const { data: user } = await axios.get<User>(
+        this.endpoint + '/locate', {
+        params: {
+          email
+        }
+      })
+      if (!user) throw new HttpException('User not found', 404)
+      if (!(hash(password) === user.password)) throw new HttpException('Wrong password', 403)
+      return this.signToken(user.key)
+    } catch (e) {
+      console.error(e)
+      throw new HttpException('User not found', 404)
+    }
   }
 
   private signToken(key: string) {
