@@ -1,6 +1,7 @@
 #### enviroment variables
 src/crud-service/.env
 src/logic-gateway/.env
+src/client/.env
 
 #### node stuff
 src/**/node_modules/
