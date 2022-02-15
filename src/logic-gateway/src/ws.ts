@@ -2,13 +2,14 @@ import { verify } from 'jsonwebtoken'
 import { WebSocketServer, WebSocket } from 'ws'
 import axios from 'axios'
 import { Message, Action, PlayerKey } from 'skip-models'
-import { Game as IGame } from '@prisma/client'
+import { Game as IGame, User } from '@prisma/client'
 import {
   toView,
   GameState
 } from 'skip-models'
+import { initializePlayer } from 'skip-models'
 
-type Group = Map<string, WebSocket>
+type Group = Map<string, { ws: WebSocket, key: PlayerKey }>
 type Game = Omit<IGame, 'state'> & { state: GameState }
 
 export type Token = {
@@ -21,29 +22,43 @@ export type Token = {
 export function configureServer() {
   const wss = new WebSocketServer({ port: 3002 })
   const connections = new Map()
+  const endpoint = 'http://localhost:3000/games'
 
   async function broadcast(key: string) {
     const group: Group = connections.get(key)
-    const { data: game } = await axios.get<Game>('http://localhost:3000/games/locate', {
+    const { data: game } = await axios.get<Game>(endpoint + '/locate', {
       params: { key }
     })
     const state = game.state
 
-    group.forEach((ws) => {
-      ws.send(JSON.stringify(toView(state, 'player_1')))
+    group.forEach((v) => {
+      v.ws.send(JSON.stringify(toView(state, v.key)))
     })
   }
 
-  function create(ws: WebSocket, gameKey: string, userKey: string) {
-    if (connections.has(gameKey)) throw new Error('Game already exists')
+  async function create(ws: WebSocket, game: Game, user: User) {
     const group = new Map()
-    group.set(userKey, ws)
-    connections.set(gameKey, group)
+    group.set(user.key, { ws, key: 'player_1' })
+    connections.set(game.key, group)
   }
 
-  function join(ws: WebSocket, gameKey: string, userKey: string) {
-    const group: Group = connections.get(gameKey)
-    group.set(userKey, ws)
+  async function join(ws: WebSocket, game: Game, user: User) {
+    const state = game.state
+    let slot: PlayerKey = 'player_1'
+    for (const player of Object.keys(state.players)) {
+      if (state.players[player as PlayerKey] === null) {
+        slot = player as PlayerKey
+        break
+      }
+    }
+    if (!slot) throw new Error('Game is full')
+
+    state.players[slot] = initializePlayer(user)
+
+    await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })
+
+    const group: Group = connections.get(game.key)
+    group.set(user.key, { ws, key: slot })
   }
 
   function start() {}
@@ -52,14 +67,16 @@ export function configureServer() {
 
   wss.on('connection', async (ws) => {
     ws.on('message', async (data) => {
-      const { gameKey, userKey, action } = await guard(data.toString())
+      const { game, user, action } = await guard(data.toString())
+
+
 
       switch (action) {
         case Action.CREATE:
-          create(ws, gameKey, userKey)
+          create(ws, game, user)
           break
         case Action.JOIN:
-          join(ws, gameKey, userKey)
+          join(ws, game, user)
           break
         case Action.START:
         case Action.PLAY:
@@ -67,7 +84,7 @@ export function configureServer() {
         default:
           throw new Error('not implemented')
       }
-      await broadcast(gameKey)
+      await broadcast(game.key)
     })
   })
 }
@@ -76,6 +93,12 @@ async function guard(data: string) {
   const params = JSON.parse(data) as Message
   const { key, token, action } = params
   const decoded = verify(token, 'secret') as Token
+  const endpoint = 'http://localhost:3000/games'
+  const { data: game } = await axios.get<Game>(endpoint + '/locate', {
+    params: {
+      key
+    }
+  })
 
   const { data: user } = await axios.get('http://localhost:3000/users/locate', {
     params: {
@@ -83,7 +106,7 @@ async function guard(data: string) {
     }
   })
 
-  if (!user) throw new Error('User not found')
-
-  return { gameKey: key, userKey: user.key, action }
+  if (!user && !game) throw new Error('Fatal not found')
+  return { game, user, action }
 }
+

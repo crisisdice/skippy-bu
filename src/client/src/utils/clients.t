@@ -81,30 +81,29 @@ export class SecureClient {
     })
   }
 
-  async createGame(): Promise<any> {
+  async createGame(): Promise<GameStateView> {
     try {
-      const { data: game } = await this.client.post<GameStateView>('games')
-      this.initializeWebSocket(game.key, Action.CREATE)
+      return (await this.client.post<GameStateView>('games')).data
     } catch (e) {
       throw e
     }
   }
   
-  async joinGame(key: string): Promise<any> {
+  async joinGame(key: string): Promise<GameStateView> {
     try {
-      this.initializeWebSocket(key, Action.JOIN)
+      return (await this.client.put<GameStateView>('games', { key })).data
     } catch (e) {
       throw e
     }
   }
   
-  //async fetchGame(key: string): Promise<GameStateView> {
-  //  try {
-  //    return (await this.client.get<GameStateView>('games', { params: { key } })).data
-  //  } catch (e) {
-  //    throw e
-  //  }
-  //}
+  async fetchGame(key: string): Promise<GameStateView> {
+    try {
+      return (await this.client.get<GameStateView>('games', { params: { key } })).data
+    } catch (e) {
+      throw e
+    }
+  }
   
   async fetchGames(): Promise<GameStateView[]> {
     try {
@@ -121,8 +120,7 @@ export class SecureClient {
 
   private initializeWebSocket(key: string, action: Action) {
     const ws = new WebSocket(this.wsURL)
-
-    const send = (action: Action) => {
+    ws.on('open', () => {
       ws.send(
         JSON.stringify({
           token: this.token,
@@ -130,17 +128,14 @@ export class SecureClient {
           action,
         })
       )
-    }
+    })
 
-    ws.on('open', () => send(action))
-    ws.on('message', (data) => handel(data))
+    ws.on('message', (data) => {
+      const view = JSON.parse(data.toString()) as GameStateView
+      console.clear()
+      console.log(printASCIIPlayerView(view.yourKey, null, view))
+    })
     this.ws = ws
   }
-}
-
-function handel(data: any) {
-  const view = JSON.parse(data.toString()) as GameStateView
-  console.clear()
-  console.log(printASCIIPlayerView(view.yourKey, null, view))
 }
 

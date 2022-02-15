@@ -1,27 +1,19 @@
 import {
   authorization,
-  gameLobby,
-  gamePlay,
-} from './pages'
+  gameLobby,     //lobby
+} from './pages' //prompts
 
 import {
   LoginClient,
   SecureClient,
-  GameClient,
-} from './utils'
-
-import { Action } from 'skip-models'
+} from './utils' //clients
 
 async function main() {
   const { apiURL, wsURL } = readEnv()
 
   const token = await authorization(new LoginClient(apiURL))
 
-  const { key, created } = await gameLobby(new SecureClient(apiURL, token))
-  
-  const action = created ? Action.CREATE : Action.JOIN
-
-  await gamePlay(new GameClient(wsURL, token, key, action))
+  await gameLobby(new SecureClient(apiURL, wsURL, token))
 }
 
 function readEnv() {
