@@ -21,7 +21,7 @@ import {
   GameStateView,
   toView,
   GameState,
-} from '../engine'
+} from 'skip-models'
 
 import hash from 'object-hash'
 

@@ -3,7 +3,7 @@ import axios from 'axios'
 import {
   Credentials,
   GameStateView,
-} from '../engine'
+} from 'skip-models'
 
 const handleFrontendError = (e: any): null => {
   console.error('Error')

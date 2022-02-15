@@ -21,7 +21,7 @@ import axios from 'axios'
 
 import {
   Credentials,
-} from '../engine'
+} from 'skip-models'
 
 /**/
 @Injectable()

@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { createSpinner } from 'nanospinner'
 import { SecureClient} from '../utils'
 import { listQuestion } from '../utils'
-import { GameStateView } from '../engine'
+import { GameStateView } from 'skip-models'
 import { printASCIIPlayerView } from '../rendering'
 import {GameClient} from '../utils/ws'
 

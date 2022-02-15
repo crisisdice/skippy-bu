@@ -13,7 +13,8 @@
       "client",
       "crud-service",
       "prisma-controller",
-      "logic-gateway"
+      "logic-gateway",
+      "models"
     ]
   },
   "resolutions": {

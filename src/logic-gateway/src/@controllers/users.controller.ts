@@ -8,7 +8,7 @@ import {
   UsersService
 } from '../@services'
 
-import { Credentials } from '../engine'
+import { Credentials } from 'skip-models'
 
 /**/
 @Controller('users')

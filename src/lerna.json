@@ -1,9 +1,10 @@
 {
   "packages": [
     "./client/",
-    "./engine/",
+    "./models/",
     "./crud-service/",
-    "./logic-gateway/"
+    "./logic-gateway/",
+    "./prisma-controller"
   ],
   "version": "0.0.0"
 }

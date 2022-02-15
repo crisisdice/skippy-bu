@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { createSpinner } from 'nanospinner'
 import { SecureClient} from '../utils'
 import { listQuestion } from '../utils'
-import { GameStateView } from '../engine'
+import { GameStateView } from 'skip-models'
 
 async function initialMethod() {
   const method = await listQuestion('What you you like to do?', ['Join a game', 'Create a game'])
