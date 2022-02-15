@@ -5,15 +5,8 @@ import {
   GameStateView,
 } from 'skip-models'
 
-const handleFrontendError = (e: any): null => {
-  console.error('Error')
-  console.error(JSON.stringify(e))
-  return null
-//
-//      console.log(this.b)
-//      console.log(JSON.stringify(this.client))
-//      throw e
-}
+// TODO catch initialization errors
+// TODO client error handling
 
 export class LoginClient {
   private readonly client
@@ -22,7 +15,6 @@ export class LoginClient {
   ) {
     const baseURL = `${api}/users`
     this.client = axios.create({ baseURL })
-    if(!this.client) throw new Error('Axios fail')
   }
 
   async login({
@@ -39,7 +31,8 @@ export class LoginClient {
       })
       return token
     } catch (e) {
-      return handleFrontendError(e)
+      console.error(JSON.stringify(e))
+      return null
     }
   }
 
@@ -58,7 +51,8 @@ export class LoginClient {
       })
       return token
     } catch (e) {
-      return handleFrontendError(e)
+      console.error(JSON.stringify(e))
+      return null
     }
   }
 }
@@ -75,27 +69,27 @@ export class SecureClient {
     })
   }
 
-  async createGame(): Promise<GameStateView | null> {
+  async createGame(): Promise<GameStateView> {
     try {
       return (await this.client.post<GameStateView>('games')).data
     } catch (e) {
-      return handleFrontendError(e)
+      throw e
     }
   }
   
-  async joinGame(key: string): Promise<GameStateView | null> {
+  async joinGame(key: string): Promise<GameStateView> {
     try {
       return (await this.client.put<GameStateView>('games', { key })).data
     } catch (e) {
-      return handleFrontendError(e)
+      throw e
     }
   }
   
-  async fetchGame(key: string): Promise<GameStateView | null> {
+  async fetchGame(key: string): Promise<GameStateView> {
     try {
       return (await this.client.get<GameStateView>('games', { params: { key } })).data
     } catch (e) {
-      return handleFrontendError(e)
+      throw e
     }
   }
   
@@ -103,19 +97,13 @@ export class SecureClient {
     try {
       return (await this.client.get<GameStateView[]>('games/all')).data
     } catch (e) {
-      return handleFrontendError(e) ?? []
+      console.error(JSON.stringify(e))
+      return []
     }
   }
   
   async startGame() {
     // TODO
-    //ws.on('open', function open() {
-    //  ws.send('something');
-    //});
-    //
-    //ws.on('message', function message(data) {
-    //  console.log('received: %s', data);
-    //});
   }
 }
 

@@ -17,3 +17,11 @@ export const listQuestion = async (message: string, choices: string[]) => {
   })).response
 }
 
+export const listObjectQuestion = async (message: string, choices: { name: string, value: string}[]) => {
+  return (await prompt({
+    name: 'response',
+    type: 'list',
+    message,
+    choices,
+  })).response
+}

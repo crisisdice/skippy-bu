@@ -26,9 +26,9 @@ import {
   Logger
 } from 'nestjs-pino'
 
-import { WebSocketServer } from 'ws';
 import {GamesController, UsersController} from './controllers'
 import {GamesService, UsersService} from './services'
+import { configureServer } from './ws'
 
 /**/
 @Module({
@@ -67,15 +67,8 @@ async function bootstrap() {
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
   const port = configService.get<number>('PORT')
-  const wss = new WebSocketServer({ port: 3002 });
 
-  wss.on('connection', function connection(ws) {
-      ws.on('message', function message(data) {
-      console.log('received: %s', data);
-    });
-
-    ws.send('something');
-  });
+  configureServer()
 
   await app.listen(port ?? 3001)
 }

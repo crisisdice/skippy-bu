@@ -1,15 +1,30 @@
 import WebSocket from 'ws'
 
 export class GameClient {
-  private readonly ws
+  public stack: string[] = []
   private readonly gameKey
   constructor(
     wsURL: string,
     token: string,
     key: string,
   ) {
-    this.ws = new WebSocket(wsURL)
+    const ws = new WebSocket(wsURL)
     this.gameKey = key
+
+
+    ws.on('open', () => {
+      ws.send(
+        JSON.stringify({
+          token,
+          key
+        })
+      )
+    })
+
+    ws.on('message', (data) => {
+      console.log('message: %s', data) 
+      //this.stack.push(data.toString())
+    })
   }
 
   public key() { return this.gameKey }

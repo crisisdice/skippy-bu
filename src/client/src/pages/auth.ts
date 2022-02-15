@@ -1,51 +1,50 @@
-import 'dotenv/config'  
+import {
+  createSpinner
+} from 'nanospinner'
 
-import { createSpinner } from 'nanospinner'
 import figlet from 'figlet'
 
-import { LoginClient } from '../utils'
-import { basicQuestion, listQuestion } from '../utils'
+import {
+  LoginClient
+} from '../utils'
+
+import {
+  basicQuestion,
+  listQuestion
+} from '../utils'
 
 async function initialMethod() {
   const method = await listQuestion('Login or Register', ['Login', 'Register'])
   return method === 'Login'
 }
 
-async function credentials(askName: boolean = false) {
+async function credentials(isLogin: boolean) {
   const email = await basicQuestion('What is your email?')
   const password = await basicQuestion('What is your password?')
-  const nickname = askName ? (await basicQuestion('What is your nickname?')) : ''
+  const nickname = isLogin ? '' : (await basicQuestion('What is your nickname?'))
   // TODO client validation
-  return { email, password, nickname}
+  return { email, password, nickname }
 }
 
 export async function authorization(client: LoginClient) {
   await resetTitle()
 
   while(true) {
-    const login = await initialMethod()
-
-    const { email, password, nickname } = await credentials(!login)
-
+    const isLogin = await initialMethod()
+    const { email, password, nickname } = await credentials(isLogin)
     const spinner = createSpinner('One moment please...').start()
-
-    const token = await (login 
+    const token = await (isLogin 
       ? client.login({ email, password })
       : client.register({ email, password, nickname })
     )
-
     if (!token) {
       resetTitle()
-      spinner.error({ text: `${ login ? 'Login' : 'Registration' } failed. Please try again.` })
+      spinner.error({ text: `${ isLogin ? 'Login' : 'Registration' } failed. Please try again.` })
       continue
     }
-
     spinner.success({ text: `Welcome!` })
-
     await sleep()
-
     console.clear()
-    
     return token
   }
 }
@@ -53,6 +52,7 @@ export async function authorization(client: LoginClient) {
 const resetTitle = async () => {
   console.clear()
   figlet('Skippy-Bu !\n', (err, data) => {
+      if (err) throw err
       console.log(data)
       console.log()
   })

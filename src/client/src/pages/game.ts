@@ -21,8 +21,12 @@ async function listGames(games: GameStateView[]) {
 export async function gamePlay(client: GameClient): Promise<void> {
   await title()
   while(true) {
+    //const data = client.stack.pop()
+
+    
+
+    //console.log(`listening ${client.key()}`)
     await sleep()
-    console.log(`listening ${client.key()}`)
     //const join = await initialMethod()
     //console.clear()
     //const spinner = createSpinner('One moment please...').start()
@@ -46,5 +50,5 @@ export async function gamePlay(client: GameClient): Promise<void> {
 const title = async () => {
   await sleep()
 }
-const sleep = (ms = 1000) => new Promise((r) => setTimeout(r, ms))
+const sleep = (ms = 500) => new Promise((r) => setTimeout(r, ms))
 
