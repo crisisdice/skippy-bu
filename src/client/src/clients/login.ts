@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import {
   Credentials,
+  routes,
 } from 'skip-models'
 
 export class LoginClient {
@@ -9,7 +10,7 @@ export class LoginClient {
   constructor(
     api: string,
   ) {
-    const baseURL = `${api}/users`
+    const baseURL = `${api}/${routes.users}`
     this.client = axios.create({ baseURL })
   }
 
@@ -21,7 +22,7 @@ export class LoginClient {
     password: string
   }): Promise<string | null> {
     try {
-      const { data: token } = await this.client.post('/login', {
+      const { data: token } = await this.client.put('/', {
         email,
         password
       })
@@ -40,7 +41,7 @@ export class LoginClient {
     nickname: string
   }): Promise<string | null> {
     try {
-      const { data: token } = await this.client.post('/register', {
+      const { data: token } = await this.client.post('/', {
         email,
         password,
         nickname

@@ -5,6 +5,8 @@ import axios from 'axios'
 import {
   GameStateView,
   Action,
+  routes,
+  Game,
 } from 'skip-models'
 
 import {
@@ -14,7 +16,7 @@ import {
 
 // TODO catch initialization errors
 // TODO client error handling
-//
+
 export class SecureClient {
   private ws: WebSocket | null = null
 
@@ -30,14 +32,14 @@ export class SecureClient {
     this.token = token
 
     this.client = axios.create({
-      baseURL: `${baseURL}/games`,
+      baseURL: `${baseURL}/${routes.games}`,
       headers: { 'Authorization': `Bearer ${token}` }
     })
   }
 
   async createGame(): Promise<void> {
     try {
-      const { data: game } = await this.client.post<GameStateView>('/')
+      const { data: game } = await this.client.post<Game>('/')
       this.initializeWebSocket(game.key, Action.CREATE)
     } catch (e) {
       throw e
@@ -54,11 +56,12 @@ export class SecureClient {
   
   async fetchGames(): Promise<{ name: string, value: string}[]> {
     try {
-      const { data: games } = await this.client.get<GameStateView[]>('/all')
+      const { data: games } = await this.client.get<Game[]>('/')
 
       return games.map(game => {
         return {
-          name: game.players.player_1?.nickname ?? 'error fetching nickname',
+          // TODO save this in a less nested spot
+          name: game.state.players.player_1?.user.nickname ?? 'error fetching nickname',
           value: game.key
         }
       })
