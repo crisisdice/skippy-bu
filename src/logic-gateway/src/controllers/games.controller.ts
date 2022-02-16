@@ -4,9 +4,6 @@ import {
   Post,
   Response,
   Get,
-  Put,
-  Body,
-  Query,
 } from '@nestjs/common'
 
 import {
@@ -22,41 +19,29 @@ import {
   getUser
 } from '../utils'
 
+import {
+  routes
+} from 'skip-models'
+
 /**/
-@Controller('games')
+@Controller(routes.games)
 export class GamesController {
   constructor(
     private readonly gamesService: GamesService
   ) {}
 
-  @Get('/')
-  @UseGuards(AuthGuard)
-  async getGame(
-    @Query('key') key: string
-  ) {
-    return await this.gamesService.getGame(key)
-  }
-
-  @Get('/all')
+  @Get()
   @UseGuards(AuthGuard)
   async getGames() {
     return await this.gamesService.getGames()
   }
 
-  @Post('/')
+  @Post()
   @UseGuards(AuthGuard)
   async createGame(
     @Response({ passthrough: true }) res: IResponse,
   ) {
     return await this.gamesService.createGame(getUser(res))
   }
-  
-  @Put('/')
-  @UseGuards(AuthGuard)
-  async joinGame(
-    @Body('key') key: string,
-    @Response({ passthrough: true }) res: IResponse,
-  ) {
-    return await this.gamesService.joinGame(getUser(res), key)
-  }
 }
+

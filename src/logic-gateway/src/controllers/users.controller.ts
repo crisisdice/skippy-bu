@@ -1,30 +1,35 @@
 import {
   Body,
   Controller,
-  Post
+  Post,
+  Put,
 } from '@nestjs/common'
 
 import {
   UsersService
 } from '../services'
 
-import { Credentials } from 'skip-models'
+import {
+  Credentials,
+  routes
+} from 'skip-models'
 
 /**/
-@Controller('users')
+@Controller(routes.users)
 export class UsersController {
   constructor(
     private readonly usersService: UsersService
   ) {
   }
   
-  @Post('register')
-  async register(@Body() body: Credentials & { nickname: string }) {
+  @Post()
+  async register(@Body() body: Credentials) {
     return await this.usersService.register(body)
   }
 
-  @Post('login')
+  @Put('login')
   async login(@Body() body: Credentials) {
     return await this.usersService.login(body)
   }
 }
+
