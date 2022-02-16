@@ -8,7 +8,7 @@ import {
   line,
   rightPileMargin,
   yourHand,
-} from './clientConstants'
+} from './constants'
 
 import {
   GameStateView,

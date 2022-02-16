@@ -11,6 +11,7 @@ import {
 } from './clients'
 
 async function main() {
+
   const { apiURL, wsURL } = readEnv()
 
   const token = await authorization(new LoginClient(apiURL))

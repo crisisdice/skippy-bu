@@ -11,6 +11,10 @@ import {
   printASCIIPlayerView
 } from '../rendering'
 
+
+// TODO catch initialization errors
+// TODO client error handling
+//
 export class SecureClient {
   private ws: WebSocket | null = null
 
@@ -48,9 +52,17 @@ export class SecureClient {
     }
   }
   
-  async fetchGames(): Promise<GameStateView[]> {
+  async fetchGames(): Promise<{ name: string, value: string}[]> {
     try {
-      return (await this.client.get<GameStateView[]>('/all')).data
+      const { data: games } = await this.client.get<GameStateView[]>('/all')
+
+      return games.map(game => {
+        return {
+          name: game.players.player_1?.nickname ?? 'error fetching nickname',
+          value: game.key
+        }
+      })
+
     } catch (e) {
       console.error(JSON.stringify(e))
       return []

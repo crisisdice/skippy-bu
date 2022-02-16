@@ -1,55 +1,47 @@
 import {
-  createSpinner
-} from 'nanospinner'
+  Action
+} from 'skip-models'
+
+import {
+  listQuestion,
+  spinner,
+} from '../elements'
 
 import {
   SecureClient
 } from '../clients'
 
 import {
-  listQuestion,
-  listObjectQuestion,
-} from '../utils'
+  t,
+} from '../i8n'
 
-import {
-  GameStateView
-} from 'skip-models'
-
-async function initialMethod() {
-  const method = await listQuestion('What you you like to do?', ['Join a game', 'Create a game'])
-  return method === 'Create a game'
-}
-
-async function listGames(games: GameStateView[]): Promise<string> {
-  return await listObjectQuestion('Choose a game', games.map(game => {
-    return {
-      name: game?.players?.player_1?.nickname ?? 'test game',
-      value: game.key,
-    }
-  }))
+async function createGameAndJoin(client: SecureClient): Promise<void> {
+  const spin = spinner()
+  const games = await client.fetchGames()
+  //TODO if games === [] show error
+  spin.success()
+  const key = await listQuestion(t.choose, games)
+  console.clear()
+  return await client.joinGame(key)
 }
 
 export async function lobby(client: SecureClient): Promise<void> {
-  await title()
-
   while (true) {
-    const isCreate = await initialMethod()
 
-    if (isCreate) return await client.createGame()
-
-    const spinner = createSpinner('One moment please...').start()
-    const games = await client.fetchGames()
-    //TODO if games === [] show error
-    spinner.success()
     console.clear()
-    const key = await listGames(games as GameStateView[])
-    return await client.joinGame(key)
+
+    const isCreate = (
+      await listQuestion(t.lobbyPrompt, [
+        { name: t.join, value: Action.JOIN },
+        { name: t.create, value: Action.CREATE },
+      ])
+    ) === Action.CREATE
+
+    console.clear()
+
+    return isCreate 
+      ? client.createGame()
+      : createGameAndJoin(client)
   }
 }
-
-const title = async () => {
-  await sleep()
-  console.clear()
-}
-const sleep = (ms = 500) => new Promise((r) => setTimeout(r, ms))
 

@@ -1,26 +1,47 @@
 import {
-  createSpinner
-} from 'nanospinner'
-
-import {
   LoginClient
 } from '../clients'
 
 import {
-  basicQuestion,
-  listQuestion
-} from '../utils'
+  textQuestion,
+  listQuestion,
+  resetTitle,
+  spinner,
+} from '../elements'
 
-async function initialMethod() {
-  const method = await listQuestion('Login or Register', ['Login', 'Register'])
-  return method === 'Login'
+import {
+  t,
+} from '../i8n'
+
+
+// TODO client validation
+// TODO standardize actions
+const Action = {
+  LOGIN: 'LOGIN',
+  REGISTER: 'REGISTER'
 }
 
-async function credentials(isLogin: boolean) {
-  const email = await basicQuestion('What is your email?')
-  const password = await basicQuestion('What is your password?')
-  const nickname = isLogin ? '' : (await basicQuestion('What is your nickname?'))
-  // TODO client validation
+function authFail(isLogin: boolean, spinner: any) {
+  resetTitle()
+  spinner.error({ text:
+    `${
+      isLogin
+        ? t.loggingIn
+        : t.registration 
+    }${
+      t.failPrompt
+    }`
+  })
+}
+
+async function credentialPrompts(isLogin: boolean) {
+  const email = await textQuestion(t.emailPrompt)
+  const password = await textQuestion(t.passwordPrompt)
+  const nickname = isLogin
+    ? undefined
+    : (
+      await textQuestion(t.nicknamePrompt)
+    )
   return { email, password, nickname }
 }
 
@@ -28,38 +49,26 @@ export async function authorization(client: LoginClient) {
   await resetTitle()
 
   while(true) {
-    const isLogin = await initialMethod()
-    const { email, password, nickname } = await credentials(isLogin)
-    const spinner = createSpinner('One moment please...').start()
-    const token = await (isLogin 
-      ? client.login({ email, password })
-      : client.register({ email, password, nickname })
+    const isLogin = (
+      await listQuestion(t.loginPrompt, [
+        { name: t.login, value: Action.LOGIN },
+        { name: t.register, value: Action.REGISTER},
+      ])
+    ) === Action.LOGIN
+    const credentials = await credentialPrompts(isLogin)
+    const spin = spinner()
+    const token = await (
+      isLogin 
+        ? client.login(credentials)
+        : client.register(credentials)
     )
     if (!token) {
-      resetTitle()
-      spinner.error({ text: `${ isLogin ? 'Login' : 'Registration' } failed. Please try again.` })
+      authFail(isLogin, spinner)
       continue
     }
-    spinner.success({ text: `Welcome!` })
-    await sleep()
-    console.clear()
+    spin.success({ text: t.welcome })
+    await textQuestion(t.youSay)
     return token
   }
 }
-
-const resetTitle = async () => {
-  const title = `
-    ____  _    _                         ____          _ 
-   / ___|| | _(_)_ __  _ __  _   _      | __ ) _   _  | | 
-   \\___ \\| |/ / | '_ \\| '_ \\| | | |     |  _ \\| | | | | | 
-    ___) |   <| | |_) | |_) | |_| |     | |_) | |_| | |_|
-   |____/|_|\\_\\_| .__/| .__/ \\__, |     |____/ \\__,_| (_)
-                |_|   |_|    |___/                       
-  `
-  console.clear()
-  console.log(title)
-  await sleep()
-}
-
-const sleep = (ms = 500) => new Promise((r) => setTimeout(r, ms))
 

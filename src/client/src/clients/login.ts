@@ -4,9 +4,6 @@ import {
   Credentials,
 } from 'skip-models'
 
-// TODO catch initialization errors
-// TODO client error handling
-
 export class LoginClient {
   private readonly client
   constructor(
@@ -24,7 +21,7 @@ export class LoginClient {
     password: string
   }): Promise<string | null> {
     try {
-      const { data: token } = await this.client.post(`login`, {
+      const { data: token } = await this.client.post('/login', {
         email,
         password
       })
@@ -43,7 +40,7 @@ export class LoginClient {
     nickname: string
   }): Promise<string | null> {
     try {
-      const { data: token } = await this.client.post(`register`, {
+      const { data: token } = await this.client.post('/register', {
         email,
         password,
         nickname
