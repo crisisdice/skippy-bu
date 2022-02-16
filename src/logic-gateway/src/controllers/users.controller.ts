@@ -6,13 +6,13 @@ import {
 } from '@nestjs/common'
 
 import {
-  UsersService
-} from '../clients'
-
-import {
   Credentials,
   routes
 } from 'skip-models'
+
+import {
+  UsersService
+} from '../clients'
 
 /**/
 @Controller(routes.users)

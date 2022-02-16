@@ -7,21 +7,21 @@ import {
 } from '@nestjs/common'
 
 import {
-  GamesService,
-  AuthGuard,
-} from '../clients'
-
-import {
   Response as IResponse
 } from 'express'
+
+import {
+  routes
+} from 'skip-models'
 
 import {
   getUser
 } from '../utils'
 
 import {
-  routes
-} from 'skip-models'
+  GamesService,
+  AuthGuard,
+} from '../clients'
 
 /**/
 @Controller(routes.games)
