@@ -4,31 +4,32 @@ import {
 
 import {
   ConfigModule,
+  ConfigService,
 } from '@nestjs/config'
-
-import {
-  LoggerModule
-} from 'nestjs-pino'
 
 import {
   NestFactory
 } from '@nestjs/core'
 
 import {
-  ConfigService
-} from '@nestjs/config'
+  LoggerModule,
+  Logger,
+} from 'nestjs-pino'
 
 import * 
   as bodyParser
 from 'body-parser'
 
 import {
-  Logger
-} from 'nestjs-pino'
+  GamesController,
+  UsersController
+} from './controllers'
 
-import {GamesController, UsersController} from './controllers'
-import {GamesService, UsersService} from './services'
-import { configureServer } from './ws'
+import {
+  GamesService,
+  UsersService,
+  configureWsServer,
+} from './clients'
 
 /**/
 @Module({
@@ -68,7 +69,7 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT')
 
-  configureServer()
+  configureWsServer()
 
   await app.listen(port ?? 3001)
 }

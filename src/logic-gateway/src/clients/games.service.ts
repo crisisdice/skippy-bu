@@ -6,12 +6,6 @@ import {
   ConfigService
 } from '@nestjs/config'
 
-// TODO refactor out prisma from this service
-import {
-  Prisma,
-  User
-} from '@prisma/client'
-
 import hash from 'object-hash'
 
 import axios from 'axios'
@@ -20,8 +14,9 @@ import {
   createGameState,
   routes,
   Game,
+  User,
+  GameCreateInput,
 } from 'skip-models'
-
 
 /**/
 @Injectable()
@@ -41,7 +36,7 @@ export class GamesService {
       key,
       metadata: { test: "test" },
       state: createGameState(user, key),
-    } as Prisma.GameCreateInput
+    } as GameCreateInput
 
     try {
       //TODO error handling

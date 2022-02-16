@@ -1,15 +1,27 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common'
-import { Request, Response } from 'express'
-import axios from 'axios'
-import { ConfigService } from '@nestjs/config'
-import { verify } from 'jsonwebtoken'
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext
+} from '@nestjs/common'
 
-export type Token = {
-  key: string
-  iat: number,
-  exp: number,
-  iss: string
-}
+import {
+  Request,
+  Response
+} from 'express'
+
+import axios from 'axios'
+
+import {
+  ConfigService
+} from '@nestjs/config'
+
+import {
+  verify
+} from 'jsonwebtoken'
+
+import {
+  Token,
+} from 'skip-models'
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -45,3 +57,4 @@ export class AuthGuard implements CanActivate {
     }
   }
 }
+

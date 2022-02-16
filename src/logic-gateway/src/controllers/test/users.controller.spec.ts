@@ -5,7 +5,7 @@ import {
 
 import {
   UsersService
-} from '../../services'
+} from '../../clients'
 
 import {
   UsersController

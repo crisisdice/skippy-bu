@@ -13,13 +13,10 @@ import {
 
 import hash from 'object-hash'
 
-import {
-  User,
-} from '@prisma/client'
-
 import axios from 'axios'
 
 import {
+  User,
   Credentials,
 } from 'skip-models'
 

@@ -1,25 +1,28 @@
-import { verify } from 'jsonwebtoken'
-import { WebSocketServer, WebSocket } from 'ws'
-import axios from 'axios'
-import { Message, Action, PlayerKey } from 'skip-models'
-import { Game as IGame, User } from '@prisma/client'
 import {
+  verify
+} from 'jsonwebtoken'
+
+import {
+  WebSocketServer,
+  WebSocket
+} from 'ws'
+
+import axios from 'axios'
+
+import {
+  Message,
+  Action,
+  PlayerKey,
   toView,
-  GameState
+  Game,
+  Token,
+  User,
+  initializePlayer,
 } from 'skip-models'
-import { initializePlayer } from 'skip-models'
 
 type Group = Map<string, { ws: WebSocket, key: PlayerKey }>
-type Game = Omit<IGame, 'state'> & { state: GameState }
 
-export type Token = {
-  key: string
-  iat: number,
-  exp: number,
-  iss: string
-}
-
-export function configureServer() {
+export function configureWsServer() {
   const wss = new WebSocketServer({ port: 3002 })
   const connections = new Map()
   const endpoint = 'http://localhost:3000/games'

@@ -7,15 +7,15 @@ import {
 } from '@nestjs/common'
 
 import {
-  GamesService
-} from '../services'
+  GamesService,
+  AuthGuard,
+} from '../clients'
 
 import {
   Response as IResponse
 } from 'express'
 
 import {
-  AuthGuard,
   getUser
 } from '../utils'
 
