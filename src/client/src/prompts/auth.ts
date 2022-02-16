@@ -4,7 +4,7 @@ import {
 
 import {
   LoginClient
-} from '../utils'
+} from '../clients'
 
 import {
   basicQuestion,

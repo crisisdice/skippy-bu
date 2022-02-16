@@ -4,7 +4,7 @@ import {
 
 import {
   SecureClient
-} from '../utils'
+} from '../clients'
 
 import {
   listQuestion,
@@ -29,7 +29,7 @@ async function listGames(games: GameStateView[]): Promise<string> {
   }))
 }
 
-export async function gameLobby(client: SecureClient): Promise<void> {
+export async function lobby(client: SecureClient): Promise<void> {
   await title()
 
   while (true) {

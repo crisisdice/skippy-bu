@@ -1,19 +1,21 @@
+import 'dotenv/config'
+
 import {
   authorization,
-  gameLobby,     //lobby
-} from './pages' //prompts
+  lobby,     
+} from './prompts'
 
 import {
   LoginClient,
   SecureClient,
-} from './utils' //clients
+} from './clients'
 
 async function main() {
   const { apiURL, wsURL } = readEnv()
 
   const token = await authorization(new LoginClient(apiURL))
 
-  await gameLobby(new SecureClient(apiURL, wsURL, token))
+  await lobby(new SecureClient(apiURL, wsURL, token))
 }
 
 function readEnv() {
