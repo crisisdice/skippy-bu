@@ -17,6 +17,7 @@ async function main() {
   const token = await authorization(new LoginClient(apiURL))
 
   await lobby(new SecureClient(apiURL, wsURL, token))
+
 }
 
 function readEnv() {
