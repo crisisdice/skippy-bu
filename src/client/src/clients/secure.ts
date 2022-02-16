@@ -79,7 +79,10 @@ export class SecureClient {
   private initializeWebSocket(key: string, action: Action) {
     const ws = new WebSocket(this.wsURL)
 
+    console.log(this.wsURL)
+
     const send = (action: Action) => {
+      console.log('sending')
       ws.send(
         JSON.stringify({
           token: this.token,

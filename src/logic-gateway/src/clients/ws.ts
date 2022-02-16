@@ -13,22 +13,28 @@ import {
   Game,
   User,
   initializePlayer,
+  GameState,
 } from 'skip-models'
 import {verifyUser} from './auth'
 
 type Group = Map<string, { ws: WebSocket, key: PlayerKey }>
 
-export function configureWsServer() {
+export function configureWsServer(endpoint: string) {
   const wss = new WebSocketServer({ port: 3002 })
   const connections = new Map()
-  const endpoint = 'http://localhost:3000/games'
 
   async function broadcast(key: string) {
     const group: Group = connections.get(key)
-    const { data: game } = await axios.get<Game>(endpoint + '/locate', {
-      params: { key }
-    })
-    const state = game.state
+    let state: GameState
+    try { 
+      const { data: game } = await axios.get<Game>(endpoint + '/games/locate', {
+        params: { key }
+      })
+      state = game.state
+    } catch (e) {
+      console.error('error broadcasting')
+      throw e
+    }
 
     group.forEach((v) => {
       v.ws.send(JSON.stringify(toView(state, v.key)))
@@ -60,13 +66,13 @@ export function configureWsServer() {
     group.set(user.key, { ws, key: slot })
   }
 
-  function start() {}
-  function play() {}
-  function discard() {}
+  //function start() {}
+  //function play() {}
+  //function discard() {}
 
   wss.on('connection', async (ws) => {
     ws.on('message', async (data) => {
-      const { game, user, action } = await guard(data.toString())
+      const { game, user, action } = await guard(data.toString(), endpoint)
 
 
 
@@ -88,19 +94,23 @@ export function configureWsServer() {
   })
 }
 
-async function guard(data: string) {
+async function guard(data: string, endpoint: string) {
+  try {
   const params = JSON.parse(data) as Message
   const { key, token, action } = params
-  const endpoint = 'http://localhost:3000'
-  const { data: game } = await axios.get<Game>(endpoint + 'games/locate', {
+  const { data: game } = await axios.get<Game>(endpoint + '/games/locate', {
     params: {
       key
     }
   })
 
-  const user = await verifyUser(token, endpoint + 'users/locate')
+  const user = await verifyUser(token, endpoint + '/users/locate')
 
   if (!user && !game) throw new Error('Fatal not found')
   return { game, user, action }
+  } catch (e) {
+    console.error('error in guard')
+    throw e
+  }
 }
 

@@ -27,7 +27,7 @@ export class UsersController {
     return await this.usersService.register(body)
   }
 
-  @Put('login')
+  @Put()
   async login(@Body() body: Credentials) {
     return await this.usersService.login(body)
   }

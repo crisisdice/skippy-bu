@@ -18,6 +18,7 @@ import axios from 'axios'
 import {
   User,
   Credentials,
+  routes,
 } from 'skip-models'
 
 /**/
@@ -28,7 +29,7 @@ export class UsersService {
   constructor(
     private readonly configService: ConfigService
   ) {
-    this.endpoint = `${this.configService.get<string>('CRUD_URL')}/users`
+    this.endpoint = `${this.configService.get<string>('CRUD_URL')}/${routes.users}`
     this.secret = this.configService.get<string>('SECRET') ?? ''
   }
 

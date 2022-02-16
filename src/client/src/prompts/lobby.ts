@@ -39,9 +39,11 @@ export async function lobby(client: SecureClient): Promise<void> {
 
     console.clear()
 
-    return isCreate 
-      ? client.createGame()
-      : createGameAndJoin(client)
+    return await (
+      isCreate 
+        ? client.createGame()
+        : createGameAndJoin(client)
+    )
   }
 }
 

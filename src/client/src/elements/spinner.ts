@@ -6,5 +6,7 @@ import {
   t,
 } from '../i8n'
 
-export const spinner = () => createSpinner(t.oneMoment).start()
+export const spinner = () => {
+  return createSpinner(t.oneMoment).start()
+}
 

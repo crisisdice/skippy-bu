@@ -26,7 +26,7 @@ export class GamesService {
   constructor(
     private readonly configService: ConfigService
   ) {
-    this.endpoint = `${this.configService.get<string>('CRUD_URL')}${routes.games}`
+    this.endpoint = `${this.configService.get<string>('CRUD_URL')}/${routes.games}`
   }
 
   async createGame(user: User): Promise<Game> {
@@ -41,7 +41,8 @@ export class GamesService {
     try {
       //TODO error handling
       const { data: game } = await axios.post<Game>(this.endpoint, payload)
-      if (!game) throw new Error('')
+      if (!game) throw new Error('no game >:(')
+      console.log('done')
       return game
     } catch (e) {
       throw e
