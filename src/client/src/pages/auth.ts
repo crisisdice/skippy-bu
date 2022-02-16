@@ -2,8 +2,6 @@ import {
   createSpinner
 } from 'nanospinner'
 
-import figlet from 'figlet'
-
 import {
   LoginClient
 } from '../utils'
@@ -50,12 +48,16 @@ export async function authorization(client: LoginClient) {
 }
 
 const resetTitle = async () => {
+  const title = `
+    ____  _    _                         ____          _ 
+   / ___|| | _(_)_ __  _ __  _   _      | __ ) _   _  | | 
+   \\___ \\| |/ / | '_ \\| '_ \\| | | |     |  _ \\| | | | | | 
+    ___) |   <| | |_) | |_) | |_| |     | |_) | |_| | |_|
+   |____/|_|\\_\\_| .__/| .__/ \\__, |     |____/ \\__,_| (_)
+                |_|   |_|    |___/                       
+  `
   console.clear()
-  figlet('Skippy-Bu !\n', (err, data) => {
-      if (err) throw err
-      console.log(data)
-      console.log()
-  })
+  console.log(title)
   await sleep()
 }
 
