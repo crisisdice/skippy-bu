@@ -1,8 +1,4 @@
 import {
-  verify
-} from 'jsonwebtoken'
-
-import {
   WebSocketServer,
   WebSocket
 } from 'ws'
@@ -15,10 +11,10 @@ import {
   PlayerKey,
   toView,
   Game,
-  Token,
   User,
   initializePlayer,
 } from 'skip-models'
+import {verifyUser} from './auth'
 
 type Group = Map<string, { ws: WebSocket, key: PlayerKey }>
 
@@ -95,19 +91,14 @@ export function configureWsServer() {
 async function guard(data: string) {
   const params = JSON.parse(data) as Message
   const { key, token, action } = params
-  const decoded = verify(token, 'secret') as Token
-  const endpoint = 'http://localhost:3000/games'
-  const { data: game } = await axios.get<Game>(endpoint + '/locate', {
+  const endpoint = 'http://localhost:3000'
+  const { data: game } = await axios.get<Game>(endpoint + 'games/locate', {
     params: {
       key
     }
   })
 
-  const { data: user } = await axios.get('http://localhost:3000/users/locate', {
-    params: {
-      key: decoded.key
-    }
-  })
+  const user = await verifyUser(token, endpoint + 'users/locate')
 
   if (!user && !game) throw new Error('Fatal not found')
   return { game, user, action }
