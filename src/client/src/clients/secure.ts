@@ -1,12 +1,8 @@
 import WebSocket from 'ws'
 
-import axios from 'axios'
-
 import {
-  GameStateView,
   Action,
-  routes,
-  Game,
+  GameStateView,
 } from 'skip-models'
 
 import {
@@ -17,84 +13,36 @@ import {
 // TODO catch initialization errors
 // TODO client error handling
 
-export class SecureClient {
-  private ws: WebSocket | null = null
-
-  private readonly client
-  private readonly wsURL
+export class GameClient {
+  private ws: WebSocket
+  private key: string
   private readonly token
+
   constructor(
-    baseURL: string,
     wsURL: string,
+    key: string,
     token: string,
+    action: Action.CREATE | Action.JOIN,
   ) {
-    this.wsURL = wsURL
     this.token = token
-
-    this.client = axios.create({
-      baseURL: `${baseURL}/${routes.games}`,
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
+    this.key = key
+    this.ws = initializesWs(wsURL, this.formatSend(action))
   }
 
-  async createGame(): Promise<void> {
-    try {
-      const { data: game } = await this.client.post<Game>('/')
-      this.initializeWebSocket(game.key, Action.CREATE)
-    } catch (e) {
-      throw e
-    }
-  }
-  
-  async joinGame(key: string): Promise<void> {
-    try {
-      this.initializeWebSocket(key, Action.JOIN)
-    } catch (e) {
-      throw e
-    }
-  }
-  
-  async fetchGames(): Promise<{ name: string, value: string}[]> {
-    try {
-      const { data: games } = await this.client.get<Game[]>('/')
-
-      return games.map(game => {
-        return {
-          // TODO save this in a less nested spot
-          name: game.state.players.player_1?.user.nickname ?? 'error fetching nickname',
-          value: game.key
-        }
-      })
-
-    } catch (e) {
-      console.error(JSON.stringify(e))
-      return []
-    }
-  }
-  
   async startGame() {
-    // TODO
+    this.send(Action.START)
   }
 
-  private initializeWebSocket(key: string, action: Action) {
-    const ws = new WebSocket(this.wsURL)
+  public send(action: Action) {
+    this.ws.send(this.formatSend(action))
+  }
 
-    console.log(this.wsURL)
-
-    const send = (action: Action) => {
-      console.log('sending')
-      ws.send(
-        JSON.stringify({
-          token: this.token,
-          key,
-          action,
-        })
-      )
-    }
-
-    ws.on('open', () => send(action))
-    ws.on('message', (data) => handel(data))
-    this.ws = ws
+  private formatSend(action: Action) {
+    return JSON.stringify({
+      token: this.token,
+      key: this.key,
+      action,
+    })
   }
 }
 
@@ -102,5 +50,19 @@ function handel(data: any) {
   const view = JSON.parse(data.toString()) as GameStateView
   console.clear()
   console.log(printASCIIPlayerView(view.yourKey, null, view))
+}
+
+function initializesWs(url: string, initialMessage: string) {
+  const ws = new WebSocket(url)
+    
+  ws.on('open', () => {
+    ws.send(initialMessage)
+  })
+
+  ws.on('message', (data: string) => {
+    handel(data)
+  })
+
+  return ws
 }
 

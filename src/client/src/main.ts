@@ -2,12 +2,14 @@ import 'dotenv/config'
 
 import {
   authorization,
-  lobby,     
+  lobby,
+  game,
 } from './prompts'
 
 import {
   LoginClient,
-  SecureClient,
+  LobbyClient,
+  GameClient,
 } from './clients'
 
 async function main() {
@@ -16,7 +18,9 @@ async function main() {
 
   const token = await authorization(new LoginClient(apiURL))
 
-  await lobby(new SecureClient(apiURL, wsURL, token))
+  const { key, action } = await lobby(new LobbyClient(apiURL, token))
+
+  await game(new GameClient(wsURL, key, token, action))
 
 }
 

@@ -8,14 +8,14 @@ import {
 } from '../elements'
 
 import {
-  SecureClient
+  LobbyClient
 } from '../clients'
 
 import {
   t,
 } from '../i8n'
 
-async function createGameAndJoin(client: SecureClient): Promise<void> {
+async function createGameAndJoin(client: LobbyClient): Promise<string> {
   const spin = spinner()
   const games = await client.fetchGames()
   //TODO if games === [] show error
@@ -25,7 +25,7 @@ async function createGameAndJoin(client: SecureClient): Promise<void> {
   return await client.joinGame(key)
 }
 
-export async function lobby(client: SecureClient): Promise<void> {
+export async function lobby(client: LobbyClient): Promise<{ key: string, action: Action.CREATE | Action.JOIN }> {
   while (true) {
 
     console.clear()
@@ -39,11 +39,9 @@ export async function lobby(client: SecureClient): Promise<void> {
 
     console.clear()
 
-    return await (
-      isCreate 
-        ? client.createGame()
-        : createGameAndJoin(client)
-    )
+    return isCreate 
+      ? { key: (await client.createGame()), action: Action.CREATE }
+      : { key: (await createGameAndJoin(client)), action: Action.JOIN }
   }
 }
 
