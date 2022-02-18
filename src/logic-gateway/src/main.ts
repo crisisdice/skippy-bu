@@ -69,7 +69,10 @@ async function bootstrap() {
 
   const port = configService.get<number>('PORT')
 
-  configureWsServer(configService.get<string>('CRUD_URL') ?? '')
+  configureWsServer(
+    configService.get<string>('CRUD_URL') ?? '',
+    configService.get<string>('SECRET') ?? ''
+  )
 
   await app.listen(port ?? 3001)
 }
