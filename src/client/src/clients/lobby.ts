@@ -43,9 +43,8 @@ export class LobbyClient {
 
       return games.map(game => {
         return {
-          // TODO save this in a less nested spot
-          name: game.state.players.player_1?.user.nickname ?? 'error fetching nickname',
-          value: game.key
+          name: game.state.name,
+          value: game.key,
         }
       })
 

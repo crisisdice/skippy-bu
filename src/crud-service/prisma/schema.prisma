@@ -17,6 +17,7 @@ model Game {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // scalar fields
+
   state Json
 
   // relations

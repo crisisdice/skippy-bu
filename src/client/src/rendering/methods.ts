@@ -43,7 +43,7 @@ function renderName(name: string) {
   return`  |  ${name}${padding}`
 }
 
-function renderHand(hand: number[]) {
+export function renderHand(hand: number[]) {
   const padding = `${Array(5 - hand.length).fill(empty).join('')}  |\n`
   const edges = `+${hand.map(() => '------').join('+')}+${padding}`
   const sides = `${leftHandMargin}|${hand.map(() => '      ').join('|')}|${padding}`
@@ -86,29 +86,37 @@ function renderPiles(name: string, piles: PilesView | null) {
   }`
 }
 
-export function printASCIIPlayerView(
-    position: PlayerKey,
-    turn: boolean | null,
-    view: GameStateView,
-  ) {
-    const player = view.players[position]
+function renderOtherPlayers(state: GameStateView, playerKey: string) {
+  return Object
+    .keys(state.players)
+    .filter(key => key !== 'piles')
+    .filter(key => {
+      const player = state.players[key as PlayerKey]
+      return player !== null && player.key !== playerKey
+    })  
+    .map(key => {
+      const player = state.players[key as PlayerKey]
+      return renderPiles(player!.nickname, player!.discard) // TODO stock
+    }).join('')
+}
+
+export function printASCIIPlayerView(state: GameStateView) {
+    const player = state.player
 
     if (player === null) throw new Error('Missing player')
+
+    const turn = state.activePlayer
+      ? state.players[state.activePlayer]?.key === player.key
+      : false
 
     return `${
       renderGreeting(player.nickname, turn)
     }${
-      renderPiles('Shared piles:', view.building)
+      renderPiles('Shared piles:', state.building)
     }${
       renderPiles('Your piles:', player.discard)
     }${
-      Object.keys(view.players)
-            .filter(key => key !== position && key !== 'piles')
-            .filter(key => view.players[key as PlayerKey] !== null)
-            .map(key => {
-              const player = view.players[key as PlayerKey]
-              return renderPiles(player!.nickname, player!.discard)
-            }).join('')
+      renderOtherPlayers(state, player.key)
     }${
       line
     }${

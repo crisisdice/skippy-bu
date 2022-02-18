@@ -2,22 +2,10 @@ export * from './types'
 export * from './mapping'
 
 import {
-  initalizeGameState,
-} from './mapping'
-
-import {
-  shuffleDealAndDraw,
-} from './methods'
-
-import {
   Prisma,
   Game as IGame,
   User as IUser
 } from '@prisma/client'
-
-export function createGameState(creator: User, key: string) {
-  return shuffleDealAndDraw(initalizeGameState(creator, key))
-}
 
 export const routes = {
   games: 'games',
@@ -28,13 +16,31 @@ import { GameState } from './types'
 
 export type Game = Omit<IGame, 'state'> & { state: GameState }
 
-export type Token = {
-  key: string
-  iat: number,
-  exp: number,
-  iss: string
-}
-
 export type User = IUser
 
 export type GameCreateInput = Prisma.GameCreateInput
+
+export enum Action {
+  CREATE,
+  JOIN,
+  START,
+  PLAY,
+  DISCARD,
+}
+
+export enum Source {
+  HAND,
+  STOCK,
+  DISCARD,
+}
+
+export type Message = {
+  token: string // for auth and to get user
+  key: string   // to find game
+  action: Action
+}
+
+export type Move = {
+  source: Source
+  card: number
+}

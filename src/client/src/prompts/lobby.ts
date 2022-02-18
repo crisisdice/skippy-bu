@@ -15,7 +15,7 @@ import {
   t,
 } from '../i8n'
 
-async function createGameAndJoin(client: LobbyClient): Promise<string> {
+async function fetchGamesAndJoin(client: LobbyClient): Promise<string> {
   const spin = spinner()
   const games = await client.fetchGames()
   //TODO if games === [] show error
@@ -41,7 +41,7 @@ export async function lobby(client: LobbyClient): Promise<{ key: string, action:
 
     return isCreate 
       ? { key: (await client.createGame()), action: Action.CREATE }
-      : { key: (await createGameAndJoin(client)), action: Action.JOIN }
+      : { key: (await fetchGamesAndJoin(client)), action: Action.JOIN }
   }
 }
 

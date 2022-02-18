@@ -21,12 +21,12 @@ function pilesView(piles: Piles): PilesView {
   }, {} as PilesView)
 }
 
-function playerView(player: Player, turn: boolean): PlayerView {
+function playerView(player: Player): PlayerView {
   return {
+    key: player.key,
     discard: pilesView(player.discard),
     stock: player.stock?.[0] ?? null,
-    turn,
-    nickname: player.user.nickname
+    nickname: player.name
   }
 }
 
@@ -34,20 +34,28 @@ function mapPlayers(gs: GameState) {
   return Object.keys(gs.players).reduce((players, iKey) => {
     const key = iKey as PlayerKey
     const player = gs.players[key]
-    const playersTurn = gs.activePlayer === key
-
-    players[key] = player === null ? null : playerView(player, playersTurn)
-
+    players[key] = player === null ? null : playerView(player)
     return players
   }, {} as Record<PlayerKey, PlayerView | null>)
 }
 
-export function toView(gs: GameState, yourKey: PlayerKey): GameStateView {
+export function toView(gs: GameState, key: string): GameStateView {
+  const match = Object.keys(gs.players).find((playerKey) => 
+    gs.players[playerKey as PlayerKey]?.key === key
+  )
+
+  if (match === null) throw new Error('')
+
+  const player = gs.players[match as PlayerKey]
+
+  if (player === null) throw new Error('')
+
   return {
-    yourKey,
+    name: gs.name,
     building: pilesView(gs.building),
+    player: playerView(player),
     players: mapPlayers(gs),
-    key: gs.key
+    activePlayer: gs.activePlayer,
   }
 }
 

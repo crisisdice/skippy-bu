@@ -8,80 +8,50 @@ import axios from 'axios'
 import {
   Message,
   Action,
-  PlayerKey,
   toView,
   Game,
   User,
-  initializePlayer,
-  GameState,
 } from 'skip-models'
-import {verifyUser} from './auth'
 
-type Group = Map<string, { ws: WebSocket, key: PlayerKey }>
+import {
+  verifyUser
+} from './auth'
+
+type Group = Map<string, WebSocket>
+type Connections = Map<string, Group>
 
 export function configureWsServer(endpoint: string) {
   const wss = new WebSocketServer({ port: 3002 })
-  const connections = new Map()
+  const connections: Connections = new Map()
 
-  async function broadcast(key: string) {
-    const group: Group = connections.get(key)
-    let state: GameState
-    try { 
-      const { data: game } = await axios.get<Game>(endpoint + '/games/locate', {
-        params: { key }
-      })
-      state = game.state
-    } catch (e) {
-      console.error('error broadcasting')
-      throw e
-    }
-
-    group.forEach((v) => {
-      v.ws.send(JSON.stringify(toView(state, v.key)))
+  async function broadcast(group: Group, game: Game) {
+    group.forEach((socket, key) => {
+      socket.send(JSON.stringify(toView(game.state, key)))
     })
   }
 
-  async function create(ws: WebSocket, game: Game, user: User) {
+  function createGroup(ws: WebSocket, game: Game, user: User) {
     const group = new Map()
-    group.set(user.key, { ws, key: 'player_1' })
+    group.set(user.key, ws)
     connections.set(game.key, group)
+    return group
   }
-
-  async function join(ws: WebSocket, game: Game, user: User) {
-    const state = game.state
-    let slot: PlayerKey = 'player_1'
-    for (const player of Object.keys(state.players)) {
-      if (state.players[player as PlayerKey] === null) {
-        slot = player as PlayerKey
-        break
-      }
-    }
-    if (!slot) throw new Error('Game is full')
-
-    state.players[slot] = initializePlayer(user)
-
-    await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })
-
-    const group: Group = connections.get(game.key)
-    group.set(user.key, { ws, key: slot })
-  }
-
-  //function start() {}
-  //function play() {}
-  //function discard() {}
 
   wss.on('connection', async (ws) => {
     ws.on('message', async (data) => {
       const { game, user, action } = await guard(data.toString(), endpoint)
 
+      const group = action === Action.CREATE
+        ? createGroup(ws, game, user)
+        : connections.get(game.key)
 
+      if (!group) throw new Error('Group not found')
 
       switch (action) {
         case Action.CREATE:
-          create(ws, game, user)
           break
         case Action.JOIN:
-          join(ws, game, user)
+          group.set(user.key, ws)
           break
         case Action.START:
         case Action.PLAY:
@@ -89,7 +59,7 @@ export function configureWsServer(endpoint: string) {
         default:
           throw new Error('not implemented')
       }
-      await broadcast(game.key)
+      await broadcast(group, game)
     })
   })
 }
