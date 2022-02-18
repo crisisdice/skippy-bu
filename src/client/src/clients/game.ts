@@ -18,75 +18,38 @@ import {
   startPrompt,
 } from '../prompts'
 
-export class GameClient {
-  private credentials
-  private ws
-
-  constructor(
-    wsURL: string,
-    key: string,
-    token: string,
-    action: Action.CREATE | Action.JOIN,
-  ) {
-    this.credentials = { token, key }
-    this.ws = this.initializesWs(wsURL, this.format({ action }))
-  }
-
-  private initializesWs(url: string, initialMessage: string) {
-    const ws = new WebSocket(url)
-
-    ws.on('open', () => {
-      ws.send(initialMessage)
-    })
-
-    ws.on('message', async (data: string) => {
-      const state = JSON.parse(data.toString()) as GameStateView
-      console.clear()
-      console.log(printASCIIPlayerView(state))
-
-      if (!state.started) return await this.start(state)
-      if (state.winner) return await this.winner(state)
-      if (state.activePlayer === state.yourKey) return await this.turn(state)
-    })
-
-    return ws
-  }
-
-  private format({ action, source, card, target, sourceKey }: MoveArgs) {
+export const game = (wsURL: string, key: string, token: string, action: Action.CREATE | Action.JOIN) => {
+  const ws = new WebSocket(wsURL)
+  const format = ({ action, source, card, target, sourceKey }: MoveArgs) => {
     return JSON.stringify({
-      ...this.credentials,
+      token,
+      key,
       move: {
-        action,
-        source,
-        sourceKey,
-        card,
-        target,
-      }
-    } as Message)
+       action,
+       source,
+       sourceKey,
+       card,
+       target,
+     }
+   } as Message)
+  }
+  const update = async (data: string) => {
+    const state = JSON.parse(data) as GameStateView
+    const render = () => console.log(printASCIIPlayerView(state))
+    console.clear()
+    render()
+    if (!state.started && await startPrompt(state)) ws.send(format({ action: Action.START }))
+    if (state.winner) {
+      winnerPrompt(state)
+      ws.close()
+    }
+    if (state.activePlayer === state.yourKey && state.started) ws.send(format((await turnPrompt(state))))
   }
 
-  private async winner(state: GameStateView) {
-    winnerPrompt(state)
-    this.ws.close()
-  }
-
-  private async start(state: GameStateView) {
-    const start = await startPrompt(state)
-    if (start) this.ws.send(
-      this.format({
-        action: Action.START 
-      })
-    )
-  }
-
-  private async turn(state: GameStateView) {
-    this.ws.send(
-      this.format(
-        (await turnPrompt(state))
-      )
-    )
-  }
+  ws.on('open', () => ws.send(format({ action })))
+  ws.on('message', async (data: any) => update(data.toString))
 }
+
 
 type MoveArgs = {
   action: Action
@@ -95,3 +58,4 @@ type MoveArgs = {
   target?: PileKey
   sourceKey?: PileKey
 }
+

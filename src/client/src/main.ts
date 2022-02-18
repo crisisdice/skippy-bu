@@ -8,7 +8,7 @@ import {
 import {
   LoginClient,
   LobbyClient,
-  GameClient,
+  game
 } from './clients'
 
 // TODO catch initialization errors
@@ -23,8 +23,7 @@ async function main() {
 
   const { key, action } = await lobby(new LobbyClient(apiURL, token))
 
-  new GameClient(wsURL, key, token, action)
-
+  game(wsURL, key, token, action)
 }
 
 function readEnv() {
