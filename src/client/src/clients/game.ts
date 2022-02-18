@@ -9,12 +9,15 @@ import {
   printASCIIPlayerView
 } from '../rendering'
 
+import {
+  listQuestion
+} from '../elements'
 
 // TODO catch initialization errors
 // TODO client error handling
 
 export class GameClient {
-  private ws: WebSocket
+  ws: WebSocket
   private key: string
   private readonly token
 
@@ -27,10 +30,6 @@ export class GameClient {
     this.token = token
     this.key = key
     this.ws = this.initializesWs(wsURL, this.formatSend(action))
-  }
-
-  public startGame() {
-    this.send(Action.START)
   }
 
   private send(action: Action) {
@@ -59,10 +58,38 @@ export class GameClient {
     return ws
   }
 
-  private handel(data: any) {
-    const view = JSON.parse(data.toString()) as GameStateView
+  private async handel(data: any) {
+    const state = JSON.parse(data.toString()) as GameStateView
     console.clear()
-    console.log(printASCIIPlayerView(view))
+    console.log(printASCIIPlayerView(state))
+
+    const isCreator = state.player.key === state.players.player_1?.key
+    const started = state.activePlayer !== null
+    const moreThanTwoPlayers = state.players.player_2 !== null
+
+    const yourTurn = state.activePlayer
+      ? state.players[state.activePlayer]?.key === state.player.key
+      : false
+
+    if (moreThanTwoPlayers && isCreator && !started) {
+      const start = await listQuestion('start?', [
+        { name: 'start', value: Action.START },
+      ])
+
+      if (start === Action.START) {
+        this.send(Action.START)
+      }
+    }
+
+    if (yourTurn && started) {
+      const start = await listQuestion('end turn?', [
+        { name: 'end', value: Action.DISCARD },
+      ])
+
+      if (start === Action.DISCARD) {
+        this.send(Action.DISCARD)
+      }
+    }
   }
 }
 

@@ -6,7 +6,7 @@ export type GameStateView = {
   building: PilesView
 
   player: PlayerView
-  players: Record<PlayerKey, PlayerView | null>
+  players: Record<PlayerKey, Omit<PlayerView, 'hand'> | null>
   activePlayer: PlayerKey | null
 }
 
@@ -16,6 +16,7 @@ export type PlayerView = {
 
   stock: number
   discard: PilesView 
+  hand: number[]
 }
 
 export type PilesView = Record<PileKey, number | null>

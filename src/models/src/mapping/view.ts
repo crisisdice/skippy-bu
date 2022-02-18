@@ -26,7 +26,8 @@ function playerView(player: Player): PlayerView {
     key: player.key,
     discard: pilesView(player.discard),
     stock: player.stock?.[0] ?? null,
-    nickname: player.name
+    nickname: player.name,
+    hand: player.hand
   }
 }
 

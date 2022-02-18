@@ -13,6 +13,8 @@ import {
   User,
   PlayerKey,
   initializePlayer,
+  GameState,
+  shuffleDealAndDraw,
 } from 'skip-models'
 
 import {
@@ -27,6 +29,8 @@ export function configureWsServer(endpoint: string, secret: string) {
   const connections: Connections = new Map()
   const guard = setUpWsLocals(endpoint, secret)
   const join = setUpJoin(endpoint + '/games')
+  const start = setUpStart(endpoint + '/games')
+  const discard = setUpDiscard(endpoint + '/games')
 
   async function broadcast(group: Group, game: Game) {
     group.forEach((socket, key) => {
@@ -59,8 +63,12 @@ export function configureWsServer(endpoint: string, secret: string) {
           group.set(user.key, ws)
           break
         case Action.START:
-        case Action.PLAY:
+          start(game)
+          break
         case Action.DISCARD:
+          discard(game)
+          break
+        case Action.PLAY:
         default:
           throw new Error('not implemented')
       }
@@ -77,14 +85,12 @@ function setUpWsLocals(
 
   return async (data: string) => {
     try {
-      const params = JSON.parse(data) as Message
-      const { key, token, action } = params
+      const { key, token, action } = JSON.parse(data) as Message
       const { data: game } = await axios.get<Game>(endpoint + '/games/locate', {
         params: {
          key
         }
       })
-
       const user = await verifyUser(token)
 
       if (!user && !game) throw new Error('Fatal not found')
@@ -117,5 +123,54 @@ function setUpJoin(endpoint: string): (user: User, game: Game) => Promise<void> 
       throw new Error()
     }
   }
+}
+
+function setUpStart(endpoint: string): (game: Game) => Promise<void> {
+  return async (game: Game) => {
+    const state = shuffleDealAndDraw(game.state)
+
+    const player = game.state.players.player_2
+
+    if (player === null) throw new Error('should not be null')
+
+    state.activePlayer = 'player_2'
+  
+    try { 
+      game = (await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })).data
+      if (game === null) throw new Error()
+    } catch (e) {
+      throw new Error()
+    }
+  }
+}
+
+function setUpDiscard(endpoint: string): (game: Game) => Promise<void> {
+  return async (game: Game) => {
+    const state = game.state
+
+    // TODO discard card
+
+    state.activePlayer = findNextPlayer(state)
+  
+    try { 
+      game = (await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })).data
+      if (game === null) throw new Error()
+    } catch (e) {
+      throw new Error()
+    }
+  }
+}
+
+function findNextPlayer(state: GameState): PlayerKey {
+  const activePlayer = state.activePlayer
+
+  if (activePlayer === null) throw new Error('No active player')
+
+  const players = Object.keys(state.players).filter(key => 
+    state.players[key as PlayerKey] !== null
+  )
+  return (activePlayer === players[players.length - 1]
+    ? players[0]
+    : players[players.indexOf(activePlayer) + 1]) as PlayerKey
 }
 
