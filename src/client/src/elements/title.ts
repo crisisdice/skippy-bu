@@ -10,4 +10,3 @@ export const resetTitle = async () => {
   console.clear()
   console.log(title)
 }
-

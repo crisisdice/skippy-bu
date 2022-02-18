@@ -33,7 +33,7 @@ export async function lobby(client: LobbyClient): Promise<{ key: string, action:
     console.clear()
 
     const isCreate = (
-      await listQuestion(t.lobbyPrompt, [
+      await listQuestion(t.actionPrompt, [
         { name: t.join, value: Action.JOIN },
         { name: t.create, value: Action.CREATE },
       ])
@@ -56,4 +56,3 @@ export async function lobby(client: LobbyClient): Promise<{ key: string, action:
     return { key, action }
   }
 }
-

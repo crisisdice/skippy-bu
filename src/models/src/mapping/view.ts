@@ -1,60 +1,34 @@
 import {
   GameState,
   GameStateView,
-  PileKey,
-  Piles,
-  PilesView,
-  Player,
   PlayerKey,
-  PlayerView,
+  PlayersView,
 } from '../types'
 
-function viewTopCard(pile: number[]): number | null {
-  return pile.length ? pile[0] : null
-}
+export function toView(gs: GameState, playerKey: string): GameStateView {
+  let yourKey
 
-function pilesView(piles: Piles): PilesView {
-  return Object.keys(piles).reduce((view, iKey) => {
-    const key = iKey as PileKey
-    view[key] = viewTopCard(piles[key])
-    return view
-  }, {} as PilesView)
-}
-
-function playerView(player: Player): PlayerView {
-  return {
-    key: player.key,
-    discard: pilesView(player.discard),
-    stock: player.stock,
-    nickname: player.name,
-    hand: player.hand
-  }
-}
-
-function mapPlayers(gs: GameState) {
-  return Object.keys(gs.players).reduce((players, iKey) => {
+  const players = Object.keys(gs.players).reduce((players, iKey) => {
     const key = iKey as PlayerKey
     const player = gs.players[key]
-    players[key] = player === null ? null : playerView(player)
-    return players
-  }, {} as Record<PlayerKey, PlayerView | null>)
-}
 
-export function toView(gs: GameState, key: string): GameStateView {
-  const match = Object.keys(gs.players).find((playerKey) => 
-    gs.players[playerKey as PlayerKey]?.key === key
-  )
+    players[key] = player
 
-  if (!match) throw new Error('')
+    if (player?.key === playerKey) yourKey = key
 
-  return {
-    name: gs.name,
-    winner: gs.winner,
-    started: gs.started,
-    building: gs.building,
-    yourKey: match as PlayerKey,
-    players: mapPlayers(gs),
-    activePlayer: gs.activePlayer,
+    return players 
+  }, {} as PlayersView)
+
+  if (!yourKey) throw new Error('')
+
+  const view: any = { 
+    ...gs,
+    players,
+    yourKey
   }
-}
 
+  delete view.deck
+  delete view.discard
+
+  return view
+}

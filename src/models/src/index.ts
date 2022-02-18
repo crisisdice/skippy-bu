@@ -49,7 +49,8 @@ export type Move = {
   target: PileKey
 }
 
-export const whereCardCanBePlayed = (card: number, state: GameStateView): PileKey[] => {
+export const whereCardCanBePlayed = (card: number | null, state: GameStateView): PileKey[] => {
+  if (card === null) return []
   const keys = [ 'pile_1', 'pile_2', 'pile_3', 'pile_4' ] as PileKey[]
   if (card === 99) return keys
   if (card === 1) return keys.filter(key => state.building[key].length === 0)

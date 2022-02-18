@@ -9,4 +9,3 @@ import {
 export const spinner = () => {
   return createSpinner(t.oneMoment).start()
 }
-

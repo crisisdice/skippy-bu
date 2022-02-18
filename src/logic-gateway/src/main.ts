@@ -67,14 +67,15 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '50mb' }))
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
 
-  const port = configService.get<number>('PORT')
+  const port = parseInt(configService.get<string>('PORT') ?? '3001')
 
-  configureWsServer(
-    configService.get<string>('CRUD_URL') ?? '',
-    configService.get<string>('SECRET') ?? ''
-  )
+  configureWsServer({
+    endpoint: configService.get<string>('CRUD_URL') ?? '',
+    secret: configService.get<string>('SECRET') ?? '',
+    port: port + 1,
+  })
 
-  await app.listen(port ?? 3001)
+  await app.listen(port)
 }
 
 bootstrap()

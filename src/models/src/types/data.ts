@@ -3,25 +3,35 @@ import {
   PileKey
 } from './keys'
 
-// top -> [] <- bottom
 export type GameState = {
   name: string
+  winner: PlayerKey | null
   started: boolean
-  deck: number[]
-  discard: number[]
   building: Piles
   players: Record<PlayerKey, Player | null>
   activePlayer: PlayerKey
-  winner: PlayerKey | null
+  deck: number[]
+  discard: number[]
+}
+
+export type GameStateView = Omit<GameState, 'deck' | 'discard' | 'players'> & {
+  yourKey: PlayerKey
+  players: PlayersView
+}
+
+export type PlayerView = Omit<Player, 'hand'> & {
+  hand?: number[]
 }
 
 export type Player = {
   key: string
-  name: string
+  nickname: string
   hand: number[]
   stock: number[]
   discard: Piles
 }
 
-export type Piles = Record<PileKey, number[]>
+export type PlayersView = Record<PlayerKey, PlayerView | null>
 
+// top -> [] <- bottom
+export type Piles = Record<PileKey, number[]>

@@ -1,10 +1,10 @@
 import {
   GameState,
-  Players,
   PlayerKey,
 } from '../types'
 
 function getDeck(): number[] {
+  // TODO get actual card amounts
   const length = 10
   const skipboSymbol = 99
   const cards = Array.from(Array(11).keys()).flatMap((card) => {
@@ -20,6 +20,15 @@ function shuffle(deck: number[]): number[] {
   return Array.from(Array(deck.length).keys()).reverse().flatMap((len) => {
     return deck.splice(getRandomIndex(len), 1)
   })
+}
+
+function deal(gameState: GameState, playerKey: PlayerKey): GameState {
+  const player = gameState.players[playerKey]
+  if (!player) return gameState
+
+  player.stock = gameState.deck.splice(0, 10)
+
+  return gameState
 }
 
 export function draw(gameState: GameState, playerKey: PlayerKey): GameState {
@@ -38,32 +47,22 @@ export function draw(gameState: GameState, playerKey: PlayerKey): GameState {
   return gameState
 }
 
-function deal(gameState: GameState, playerKey: PlayerKey): GameState {
-  const player = gameState.players[playerKey]
-  if (!player) return gameState
-
-  player.stock = gameState.deck.splice(0, 10)
-
-  return gameState
-}
-
 export function shuffleDealAndDraw(gameState: GameState): GameState {
   gameState.deck = shuffle(getDeck())
 
-  gameState = deal(gameState, Players.One)
-  gameState = deal(gameState, Players.Two)
-  gameState = deal(gameState, Players.Three)
-  gameState = deal(gameState, Players.Four)
-  gameState = deal(gameState, Players.Five)
-  gameState = deal(gameState, Players.Six)
+  gameState = deal(gameState, PlayerKey.One)
+  gameState = deal(gameState, PlayerKey.Two)
+  gameState = deal(gameState, PlayerKey.Three)
+  gameState = deal(gameState, PlayerKey.Four)
+  gameState = deal(gameState, PlayerKey.Five)
+  gameState = deal(gameState, PlayerKey.Six)
 
-  gameState = draw(gameState, Players.One)
-  gameState = draw(gameState, Players.Two)
-  gameState = draw(gameState, Players.Three)
-  gameState = draw(gameState, Players.Four)
-  gameState = draw(gameState, Players.Five)
-  gameState = draw(gameState, Players.Six)
+  gameState = draw(gameState, PlayerKey.One)
+  gameState = draw(gameState, PlayerKey.Two)
+  gameState = draw(gameState, PlayerKey.Three)
+  gameState = draw(gameState, PlayerKey.Four)
+  gameState = draw(gameState, PlayerKey.Five)
+  gameState = draw(gameState, PlayerKey.Six)
 
   return gameState
 }
-

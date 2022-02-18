@@ -13,14 +13,6 @@ import {
   t,
 } from '../i8n'
 
-
-// TODO client validation
-// TODO standardize actions
-const Action = {
-  LOGIN: 'LOGIN',
-  REGISTER: 'REGISTER'
-}
-
 function authFail(isLogin: boolean, spinner: any) {
   resetTitle()
   spinner.error({ text:
@@ -72,3 +64,7 @@ export async function authorization(client: LoginClient) {
   }
 }
 
+const Action = {
+  LOGIN: 'LOGIN',
+  REGISTER: 'REGISTER'
+}

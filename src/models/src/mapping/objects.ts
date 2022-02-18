@@ -18,7 +18,7 @@ function initializePiles(): Piles {
 
 export function initializePlayer(user: User): Player {
   return {
-    name: user.nickname,
+    nickname: user.nickname,
     key: user.key,
     hand: [],
     stock: [],
@@ -28,11 +28,9 @@ export function initializePlayer(user: User): Player {
 
 export function initalizeGameState(creator: User): GameState {
   return {
-    // metadata
     name: creator.nickname,
     started: false,
     winner: null,
-    // players
     players: {
       player_1: initializePlayer(creator),
       player_2: null,
@@ -41,11 +39,9 @@ export function initalizeGameState(creator: User): GameState {
       player_5: null,
       player_6: null,
     },
-    activePlayer: 'player_1' as PlayerKey,
-    // field
+    activePlayer: PlayerKey.One,
     deck: [],
     discard: [],
     building: initializePiles(),
   }
 }
-

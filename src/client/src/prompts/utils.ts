@@ -3,7 +3,10 @@ import {
   Source,
 } from 'skip-models'
 
-// mapping utils
+import {
+  g
+} from '../i8n'
+
 export const mapPiles = (piles: PileKey[]) => {
   return piles.map(pile => {
     return {
@@ -18,13 +21,13 @@ export const mapCardSource = (source: Source, card: number, key?: PileKey) => {
 
   switch(source) {
     case Source.HAND:
-      sourceString = 'Hand'
+      sourceString = g.hand
       break
     case Source.DISCARD:
-      sourceString = 'Discard'
+      sourceString = g.discard
       break
     case Source.STOCK:
-      sourceString = 'Stock'
+      sourceString = g.stock
       break
   }
 
@@ -37,4 +40,3 @@ export const mapCardSource = (source: Source, card: number, key?: PileKey) => {
     }
   }
 }
-

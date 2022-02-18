@@ -14,15 +14,12 @@ import {
   toView,
   Game,
   User,
-  PlayerKey,
-  initializePlayer,
-  GameState,
-  shuffleDealAndDraw,
-  Move,
-  Player,
-  draw,
-  Source,
+  routes,
 } from 'skip-models'
+
+import {
+  transformationMapping
+} from './export'
 
 import {
   setUpUserVerification
@@ -30,71 +27,32 @@ import {
 
 type Group = Map<string, WebSocket>
 type Connections = Map<string, Group>
+type WsArgs = { endpoint: string, secret: string, port: number }
 
-export function configureWsServer(endpoint: string, secret: string) {
-  const wss = new WebSocketServer({ port: 3002 })
+export const WS = {
+  CONNECTION: 'connection',
+  MESSAGE: 'message'
+}
+const locate = 'locate'
+
+export function configureWsServer({ port, endpoint, secret }: WsArgs) {
+  const wss = new WebSocketServer({ port })
   const connections: Connections = new Map()
-  const guard = setUpWsLocals(endpoint, secret)
-  const join = setUpJoin(endpoint + '/games')
-  const start = setUpStart(endpoint + '/games')
-  const discard = setUpDiscard(endpoint + '/games')
-  const play = setUpPlay(endpoint + '/games')
+  const handler = setupWs({ endpoint, secret })
 
-  async function broadcast(group: Group, game: Game) {
-    group.forEach((socket, key) => {
-      socket.send(JSON.stringify(toView(game.state, key)))
-    })
-  }
-
-  function createGroup(ws: WebSocket, game: Game, user: User) {
-    const group = new Map()
-    group.set(user.key, ws)
-    connections.set(game.key, group)
-    return group
-  }
-
-  wss.on('connection', async (ws) => {
-    ws.on('message', async (data) => {
-      const { game, user, move } = await guard(data.toString())
-
-      const group = move.action === Action.CREATE
-        ? createGroup(ws, game, user)
-        : connections.get(game.key)
-
-      if (!group) throw new Error('Group not found')
-
-      switch (move.action) {
-        case Action.CREATE:
-          break
-        case Action.JOIN:
-          join(user, game)
-          group.set(user.key, ws)
-          break
-        case Action.START:
-          start(game)
-          break
-        case Action.DISCARD:
-          discard(game, move)
-          break
-        case Action.PLAY:
-          play(game, move)
-          break
-      }
-      await broadcast(group, game)
-    })
+  wss.on(WS.CONNECTION, async (ws) => {
+    ws.on(WS.MESSAGE, async (data: any) => await handler(data.toString(), ws, connections))
   })
+
 }
 
-function setUpWsLocals(
-  endpoint: string,
-  secret: string): (data: string) => Promise<{ game: Game, user: User, move: Move }> {
-
-  const verifyUser = setUpUserVerification(endpoint + '/users/locate', secret)
-
-  return async (data: string) => {
+function setupWs({ endpoint, secret }: Omit<WsArgs, 'port'>) {
+  const buildUrl = (route: string) => `${endpoint}/${route}/${locate}`
+  const verifyUser = setUpUserVerification(buildUrl(routes.users), secret)
+  const guard = async (data: string) => {
     try {
       const { key, token, move } = JSON.parse(data) as Message
-      const { data: game } = await axios.get<Game>(endpoint + '/games/locate', {
+      const { data: game } = await axios.get<Game>(buildUrl(routes.games), {
         params: {
          key
         }
@@ -104,143 +62,45 @@ function setUpWsLocals(
       if (!user && !game) throw new Error('Fatal not found')
       return { game, user, move }
     } catch (e) {
-      console.error('error in guard')
       throw e
     }
   }
-}
+  const createGroup = (ws: WebSocket, connections: Connections, game: Game, user: User) => {
+    const group = new Map()
+    group.set(user.key, ws)
+    connections.set(game.key, group)
+    return group
+  }
 
-function setUpJoin(endpoint: string): (user: User, game: Game) => Promise<void> {
-  return async (user: User, game: Game) => {
-    const state = game.state
-    let slot: PlayerKey = 'player_1'
-    for (const player of Object.keys(state.players)) {
-      if (state.players[player as PlayerKey] === null) {
-        slot = player as PlayerKey
-        break
+  return async (data: string, ws: WebSocket, connections: Connections) => {
+    const { game, user, move } = await guard(data.toString())
+
+    const group = move.action === Action.CREATE
+      ? createGroup(ws, connections, game, user)
+      : connections.get(game.key)
+
+      if (!group) throw new Error('Group not found')
+
+      if (move.action === Action.JOIN) group.set(user.key, ws)
+
+      const state = transformationMapping(game, user, move)[move.action]()
+
+      let updated
+      try { 
+        updated = (
+          await axios.put<Game>(`${endpoint}/${routes.games}`, {
+            state
+          }, {
+            params: { key: game.key }
+          })
+        ).data
+        if (updated === null) throw new Error('Error updating game state')
+      } catch (e) {
+        throw e
       }
-    }
-    if (!slot) throw new Error('Game is full')
-
-    state.players[slot] = initializePlayer(user)
-  
-    try { 
-      game = (await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })).data
-      if (game === null) throw new Error()
-    } catch (e) {
-      throw new Error()
-    }
+      group.forEach((socket: WebSocket, key: string) => {
+        socket.send(JSON.stringify(toView(game.state, key)))
+      })
   }
-}
-
-function setUpStart(endpoint: string): (game: Game) => Promise<void> {
-  return async (game: Game) => {
-    const state = shuffleDealAndDraw(game.state)
-
-    const player = game.state.players.player_2
-
-    if (player === null) throw new Error('should not be null')
-
-    state.activePlayer = findStartingPlayer(state)
-    state.started = true
-  
-    try { 
-      game = (await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })).data
-      if (game === null) throw new Error()
-    } catch (e) {
-      throw new Error()
-    }
-  }
-}
-
-function setUpDiscard(endpoint: string): (game: Game, move: Move) => Promise<void> {
-  return async (game: Game, move: Move) => {
-    const state = game.state
-    const index = (state.players[state.activePlayer] as Player).hand.indexOf(move.card)
-    const card = (state.players[state.activePlayer] as Player).hand.splice(index, 1);
-
-    (state.players[state.activePlayer] as Player).discard[move.target] = [
-      card[0], ...(state.players[state.activePlayer] as Player).discard[move.target]
-    ]
-    const newState = draw(state, state.activePlayer)
-    newState.activePlayer = findNextPlayer(state)
-  
-    try { 
-      game = (await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })).data
-      if (game === null) throw new Error()
-    } catch (e) {
-      throw new Error()
-    }
-  }
-}
-
-function setUpPlay(endpoint: string): (game: Game, move: Move) => Promise<void> {
-  return async (game: Game, move: Move) => {
-    const { source, sourceKey, card, target } = move
-    let state = game.state
-
-    const getCardFromHand = () => {
-      const index = (state.players[state.activePlayer] as Player).hand.indexOf(card)
-      return (state.players[state.activePlayer] as Player).hand.splice(index, 1)[0]
-    }
-
-    const getCardFromDiscard = () => {
-      if (!sourceKey) { throw new Error('') }
-      return (state.players[state.activePlayer] as Player).discard[sourceKey].splice(0, 1)[0]
-    }
-
-    let actualCard
-    switch(source) {
-      case Source.HAND:
-        actualCard = getCardFromHand()
-        break
-      case Source.DISCARD:
-        actualCard = getCardFromDiscard()
-        break
-      case Source.STOCK:
-        actualCard = (state.players[state.activePlayer] as Player).stock.splice(0,1)[0]
-        break
-    }
-
-    state.building[target] = [ actualCard, ...state.building[target] ]
-
-    if (state.building[target].length === 12) {
-      state.discard = [ ...state.building[target], ...state.discard ]
-      state.building[target] = []
-    }
-
-    if ((state.players[state.activePlayer] as Player).hand.length === 0) {
-      state = draw(state, state.activePlayer)
-    }
-
-    if ((state.players[state.activePlayer] as Player).stock.length === 0) {
-      state.winner = state.activePlayer
-    }
-  
-    try { 
-      game = (await axios.put<Game>(endpoint, { state }, { params: { key: game.key } })).data
-      if (game === null) throw new Error()
-    } catch (e) {
-      throw new Error()
-    }
-  }
-}
-
-function findNextPlayer(state: GameState): PlayerKey {
-  const activePlayer = state.activePlayer
-
-  if (activePlayer === null) throw new Error('No active player')
-
-  const players = Object.keys(state.players).filter(key => 
-    state.players[key as PlayerKey] !== null
-  )
-  return (activePlayer === players[players.length - 1]
-    ? players[0]
-    : players[players.indexOf(activePlayer) + 1]) as PlayerKey
-}
-
-function findStartingPlayer(state: GameState): PlayerKey {
-  if (!state) throw new Error('')
-  return 'player_2' as PlayerKey
 }
 

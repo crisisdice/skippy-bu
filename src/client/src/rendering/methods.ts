@@ -13,26 +13,27 @@ import {
 
 import {
   GameStateView,
-  PilesView,
   PlayerKey,
+  PlayerView,
   Piles,
   PileKey,
 } from 'skip-models'
 
-function renderGreeting(name: string, turn: boolean, started: boolean) {
-  const greeting = started
-    ? `   Hello ${ name }, it is${ turn ? '' : ' not' } your turn.`
-    : `Hello and welcome, ${ name }.`
+import {
+  greeting,
+  g
+} from '../i8n'
 
-  return `${greeting}\n${
+function renderGreeting(name: string, turn: boolean, started: boolean) {
+  return `${greeting(name, turn, started)}\n${
     line
   }${
     bars
   }`
 }
 
-function renderCard(card: number | null) {
-  if (card === null) return '|      '
+function renderCard(card?: number | null) {
+  if (!card) return '|      '
   return card.toString().length === 2
     ? (card === 99
         ? `|   S  `
@@ -69,59 +70,49 @@ export function renderHand(hand: number[]) {
   }`
 }
 
-function renderPiles(name: string, handCards: number, piles: PilesView | null, stock: number[]) {
-  if (!piles) return ''
+function renderPiles(piles: Piles, stock: boolean, nickname: string, left: string, right: string) {
+  const cards = `${Object.keys(piles).map(key => renderCard(piles[key as PileKey]?.[0])).join('')}|`
+  return `${
+    renderName(nickname)
+  }${
+    emptyTop(stock)
+  }${
+    left
+  }${
+    cards
+  }${
+    right
+  }${
+    emptyBottom(stock)
+  }`
+}
 
-  const pileCards = `${Object.keys(piles).map(key => 
-      renderCard(piles[key as keyof PilesView])
-    ).join('')}|`
-
+function renderPlayerPiles(player: PlayerView) {
+  const { nickname, discard, stock, hand } = player
   const padding = stock.length.toString().length === 2 ? ' ' : '  '
   const renderedStock = `   ${renderCard(stock?.[0] ?? null)}| ${stock.length}${padding}|\n`
-  const handCardCount = `  |  Hand cards: ${handCards}     `
-    
-  return `${
-    renderName(name) }${ emptyTop(true)
-  }${
-    handCardCount }${ pileCards }${renderedStock}${
-    emptyBottom(true)
-  }`
+  const handCardCount = `  |  ${g.handCards}: ${hand?.length}     `
+  return renderPiles(discard, true, nickname, handCardCount, renderedStock)
 }
 
-function renderBuildingPiles(name: string, piles: Piles) {
-  if (!piles) return ''
-
-  const pileCards = `${Object.keys(piles).map(key => 
-      renderCard(piles[key as PileKey]?.[0] ?? null)
-    ).join('')}|`
-
-  return `${
-    renderName(name) }${ emptyTop(false)
-  }${
-    leftPileMargin }${ pileCards }           ${ rightPileMargin
-  }${
-    emptyBottom(false)
-  }`
+function renderBuildingPiles(piles: Piles) {
+  const right = `           ${ rightPileMargin }`
+  return renderPiles(piles, false, g.sharedPiles, leftPileMargin, right)
 }
 
-function renderOtherPlayers(state: GameStateView, playerKey: string) {
-  return Object
-    .keys(state.players)
-    .filter(key => key !== 'piles')
-    .filter(key => {
-      const player = state.players[key as PlayerKey]
-      return player !== null && player.key !== playerKey
-    })  
-    .map(key => {
-      const player = state.players[key as PlayerKey]
-      return renderPiles(player!.nickname, player!.hand.length, player!.discard, player!.stock)
-    }).join('')
+function renderOtherPlayers(state: GameStateView) {
+  return Object.keys(state.players)
+    .filter(key => key !== state.yourKey)
+    .map(key => state.players[key as PlayerKey])
+    .filter((player): player is PlayerView => !!player)
+    .map(player => renderPlayerPiles(player)).join('')
 }
 
 export function printASCIIPlayerView(state: GameStateView) {
     const player = state.players[state.yourKey]
+    const hand = player?.hand
 
-    if (player === null) throw new Error('Missing player')
+    if (!player || !hand) throw new Error('Missing player')
 
     const turn = state.activePlayer
       ? state.players[state.activePlayer]?.key === player.key
@@ -130,16 +121,16 @@ export function printASCIIPlayerView(state: GameStateView) {
     return `${
       renderGreeting(player.nickname, turn, state.started)
     }${
-      renderOtherPlayers(state, player.key)
+      renderOtherPlayers(state)
     }${
-      renderBuildingPiles('Shared piles', state.building)
+      renderBuildingPiles(state.building)
     }${
       name
     }${
-      renderPiles('Your piles', player.hand.length, player.discard, player.stock)
+      renderPlayerPiles({ ...player, hand, nickname: g.yourPiles })
     }${
       state.started
-        ? renderHand(player.hand)
+        ? renderHand(hand)
         : ''
     }${
       line
