@@ -55,7 +55,6 @@ export function configureWsServer(endpoint: string, secret: string) {
 
   wss.on('connection', async (ws) => {
     ws.on('message', async (data) => {
-      console.log(data.toString())
       const { game, user, move } = await guard(data.toString())
 
       const group = move.action === Action.CREATE
@@ -177,11 +176,8 @@ function setUpDiscard(endpoint: string): (game: Game, move: Move) => Promise<voi
 
 function setUpPlay(endpoint: string): (game: Game, move: Move) => Promise<void> {
   return async (game: Game, move: Move) => {
-    let state = game.state
-
-    let actualCard
-
     const { source, sourceKey, card, target } = move
+    let state = game.state
 
     const getCardFromHand = () => {
       const index = (state.players[state.activePlayer] as Player).hand.indexOf(card)
@@ -193,6 +189,7 @@ function setUpPlay(endpoint: string): (game: Game, move: Move) => Promise<void> 
       return (state.players[state.activePlayer] as Player).discard[sourceKey].splice(0, 1)[0]
     }
 
+    let actualCard
     switch(source) {
       case Source.HAND:
         actualCard = getCardFromHand()
@@ -205,14 +202,7 @@ function setUpPlay(endpoint: string): (game: Game, move: Move) => Promise<void> 
         break
     }
 
-    console.log('actual card' + actualCard.toString())
-
     state.building[target] = [ actualCard, ...state.building[target] ]
-
-    console.log('target')
-    console.log(target)
-
-    console.log(state.building[target])
 
     if (state.building[target].length === 12) {
       state.discard = [ ...state.building[target], ...state.discard ]
