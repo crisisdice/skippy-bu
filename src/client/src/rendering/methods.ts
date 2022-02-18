@@ -8,18 +8,21 @@ import {
   line,
   rightPileMargin,
   yourHand,
+  name,
 } from './constants'
 
 import {
   GameStateView,
   PilesView,
   PlayerKey,
+  Piles,
+  PileKey,
 } from 'skip-models'
 
-function renderGreeting(name: string, turn: boolean | null) {
-  const greeting = turn === null
-    ? `Hello and welcome, ${ name }.`
-    : `   Hello ${ name }, it is${ turn ? '' : ' not' } your turn.`
+function renderGreeting(name: string, turn: boolean, started: boolean) {
+  const greeting = started
+    ? `   Hello ${ name }, it is${ turn ? '' : ' not' } your turn.`
+    : `Hello and welcome, ${ name }.`
 
   return `${greeting}\n${
     line
@@ -39,8 +42,8 @@ function renderCard(card: number | null) {
 }
 
 function renderName(name: string) {
-  const padding = Array(18 - name.length).fill(' ').join('')
-  return`  |  ${name}${padding}`
+  const padding = Array(17 - name.length).fill(' ').join('')
+  return`  |  ${name}:${padding}`
 }
 
 export function renderHand(hand: number[]) {
@@ -63,29 +66,41 @@ export function renderHand(hand: number[]) {
     leftHandMargin }${ edges
   }${
     bars
-  }${
-    line
   }`
 }
 
-function renderPiles(name: string, piles: PilesView | null, stock?: number) {
+function renderPiles(name: string, handCards: number, piles: PilesView | null, stock: number[]) {
   if (!piles) return ''
 
   const pileCards = `${Object.keys(piles).map(key => 
       renderCard(piles[key as keyof PilesView])
     ).join('')}|`
 
-  const withStock = !!stock
-  const renderedStock = withStock ? `   ${renderCard(stock)}|`: '           '
+  const padding = stock.length.toString().length === 2 ? ' ' : '  '
+  const renderedStock = `   ${renderCard(stock?.[0] ?? null)}| ${stock.length}${padding}|\n`
+  const handCardCount = `  |  Hand cards: ${handCards}     `
     
   return `${
-    renderName(name) }${ emptyTop(withStock)
+    renderName(name) }${ emptyTop(true)
   }${
-    leftPileMargin }${ pileCards }${renderedStock}${ rightPileMargin
+    handCardCount }${ pileCards }${renderedStock}${
+    emptyBottom(true)
+  }`
+}
+
+function renderBuildingPiles(name: string, piles: Piles) {
+  if (!piles) return ''
+
+  const pileCards = `${Object.keys(piles).map(key => 
+      renderCard(piles[key as PileKey]?.[0] ?? null)
+    ).join('')}|`
+
+  return `${
+    renderName(name) }${ emptyTop(false)
   }${
-    emptyBottom(withStock)
+    leftPileMargin }${ pileCards }           ${ rightPileMargin
   }${
-    bars
+    emptyBottom(false)
   }`
 }
 
@@ -99,12 +114,12 @@ function renderOtherPlayers(state: GameStateView, playerKey: string) {
     })  
     .map(key => {
       const player = state.players[key as PlayerKey]
-      return renderPiles(player!.nickname, player!.discard, player!.stock)
+      return renderPiles(player!.nickname, player!.hand.length, player!.discard, player!.stock)
     }).join('')
 }
 
 export function printASCIIPlayerView(state: GameStateView) {
-    const player = state.player
+    const player = state.players[state.yourKey]
 
     if (player === null) throw new Error('Missing player')
 
@@ -113,19 +128,21 @@ export function printASCIIPlayerView(state: GameStateView) {
       : false
 
     return `${
-      renderGreeting(player.nickname, turn)
-    }${
-      renderPiles('Shared piles:', state.building)
-    }${
-      renderPiles('Your piles:', player.discard, player.stock)
+      renderGreeting(player.nickname, turn, state.started)
     }${
       renderOtherPlayers(state, player.key)
     }${
-      line
+      renderBuildingPiles('Shared piles', state.building)
     }${
-      state.activePlayer !== null
-      ? renderHand(player.hand)
-      : ''
+      name
+    }${
+      renderPiles('Your piles', player.hand.length, player.discard, player.stock)
+    }${
+      state.started
+        ? renderHand(player.hand)
+        : ''
+    }${
+      line
     }`
 }
 

@@ -87,7 +87,7 @@ export class UsersService {
     return sign({ key }, this.secret, {
       algorithm: 'HS256',
       expiresIn: '7d',
-      issuer: 'skippy-bu',
+issuer: 'skippy-bu',
     })
   }
 }

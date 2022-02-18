@@ -63,7 +63,7 @@ export async function authorization(client: LoginClient) {
         : client.register(credentials)
     )
     if (!token) {
-      authFail(isLogin, spinner)
+      authFail(isLogin, spin)
       continue
     }
     spin.success({ text: t.welcome })

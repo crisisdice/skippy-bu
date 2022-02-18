@@ -13,7 +13,7 @@ export const routes = {
   users: 'users',
 }
 
-import { GameState } from './types'
+import { GameState, GameStateView, PileKey } from './types'
 
 export type Game = Omit<IGame, 'state'> & { state: GameState }
 
@@ -38,10 +38,25 @@ export enum Source {
 export type Message = {
   token: string // for auth and to get user
   key: string   // to find game
-  action: Action
+  move: Move
 }
 
 export type Move = {
+  action: Action
   source: Source
+  sourceKey?: PileKey
   card: number
+  target: PileKey
 }
+
+export const whereCardCanBePlayed = (card: number, state: GameStateView): PileKey[] => {
+  const keys = [ 'pile_1', 'pile_2', 'pile_3', 'pile_4' ] as PileKey[]
+  if (card === 99) return keys
+  if (card === 1) return keys.filter(key => state.building[key].length === 0)
+
+  return keys.filter(key => 
+    (state.building[key]?.[0] === card - 1) ||
+    (state.building[key]?.[0] === 99 && state.building[key]?.length === card - 1)
+  )
+}
+

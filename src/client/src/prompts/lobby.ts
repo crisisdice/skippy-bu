@@ -15,14 +15,16 @@ import {
   t,
 } from '../i8n'
 
-async function selectGame(client: LobbyClient): Promise<string> {
+async function selectGame(client: LobbyClient): Promise<string | null> {
   const spin = spinner()
   const games = await client.fetchGames()
-  //TODO if games === [] show error
+  
+  if (!games.length) {
+    spin.error({ text: t.noGameFound })
+    return null
+  }
   spin.success()
-  const key = await listQuestion(t.choose, games)
-  console.clear()
-  return key
+  return await listQuestion(t.choose, games)
 }
 
 export async function lobby(client: LobbyClient): Promise<{ key: string, action: Action.CREATE | Action.JOIN }> {
@@ -39,9 +41,19 @@ export async function lobby(client: LobbyClient): Promise<{ key: string, action:
 
     console.clear()
 
-    return isCreate 
-      ? { key: (await client.createGame()), action: Action.CREATE }
-      : { key: (await selectGame(client)), action: Action.JOIN }
+    const key = isCreate 
+      ? await client.createGame()
+      : await selectGame(client)
+
+    const action = isCreate
+      ? Action.CREATE
+      : Action.JOIN
+
+    if (!key) continue
+
+    console.clear()
+
+    return { key, action }
   }
 }
 

@@ -22,10 +22,16 @@ function shuffle(deck: number[]): number[] {
   })
 }
 
-function draw(gameState: GameState, playerKey: PlayerKey): GameState {
+export function draw(gameState: GameState, playerKey: PlayerKey): GameState {
   const player = gameState.players[playerKey]
   if (!player) return gameState
-  const cards = gameState.deck.splice(0, 5 - player.hand.length)
+  const cardsToDraw = 5 - player.hand.length
+
+  if (gameState.deck.length < cardsToDraw) {
+    gameState.deck = shuffle([ ...gameState.deck, ...gameState.discard ])
+  }
+
+  const cards = gameState.deck.splice(0, cardsToDraw)
 
   player.hand = [ ...player.hand, ...cards ]
   
@@ -36,7 +42,7 @@ function deal(gameState: GameState, playerKey: PlayerKey): GameState {
   const player = gameState.players[playerKey]
   if (!player) return gameState
 
-  player.stock = gameState.deck.splice(0, 30)
+  player.stock = gameState.deck.splice(0, 10)
 
   return gameState
 }

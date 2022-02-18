@@ -3,6 +3,9 @@ import WebSocket from 'ws'
 import {
   Action,
   GameStateView,
+  Message,
+  PileKey,
+  Source,
 } from 'skip-models'
 
 import {
@@ -10,8 +13,10 @@ import {
 } from '../rendering'
 
 import {
-  listQuestion
-} from '../elements'
+  winnerPrompt,
+  turnPrompt,
+  startPrompt,
+} from '../prompts'
 
 // TODO catch initialization errors
 // TODO client error handling
@@ -36,12 +41,22 @@ export class GameClient {
     this.ws.send(this.formatSend(action))
   }
 
-  private formatSend(action: Action) {
+  private sendMove(action: Action, source: Source, card: number, target: PileKey, sourceKey?: PileKey) {
+    this.ws.send(this.formatSend(action, source, card, target, sourceKey))
+  }
+
+  private formatSend(action: Action, source?: Source, card?: number, target?: PileKey, sourceKey?:PileKey) {
     return JSON.stringify({
       token: this.token,
       key: this.key,
-      action,
-    })
+      move: {
+        action,
+        source,
+        sourceKey,
+        card,
+        target,
+      }
+    } as Message)
   }
 
   private initializesWs(url: string, initialMessage: string) {
@@ -51,45 +66,32 @@ export class GameClient {
       ws.send(initialMessage)
     })
   
-    ws.on('message', (data: string) => {
-      this.handel(data)
+    ws.on('message', async (data: string) => {
+      const state = JSON.parse(data.toString()) as GameStateView
+      console.clear()
+      console.log(printASCIIPlayerView(state))
+
+      if (!state.started) return await this.start(state)
+      if (state.winner) return await this.winner(state) 
+      if (state.activePlayer === state.yourKey) return await this.turn(state)
     })
   
     return ws
   }
 
-  private async handel(data: any) {
-    const state = JSON.parse(data.toString()) as GameStateView
-    console.clear()
-    console.log(printASCIIPlayerView(state))
+  private async winner(state: GameStateView) {
+    winnerPrompt(state)
+    this.ws.close()
+  }
 
-    const isCreator = state.player.key === state.players.player_1?.key
-    const started = state.activePlayer !== null
-    const moreThanTwoPlayers = state.players.player_2 !== null
+  private async start(state: GameStateView) {
+    const start = await startPrompt(state)
+    if (start) this.send(Action.START)
+  }
 
-    const yourTurn = state.activePlayer
-      ? state.players[state.activePlayer]?.key === state.player.key
-      : false
-
-    if (moreThanTwoPlayers && isCreator && !started) {
-      const start = await listQuestion('start?', [
-        { name: 'start', value: Action.START },
-      ])
-
-      if (start === Action.START) {
-        this.send(Action.START)
-      }
-    }
-
-    if (yourTurn && started) {
-      const start = await listQuestion('end turn?', [
-        { name: 'end', value: Action.DISCARD },
-      ])
-
-      if (start === Action.DISCARD) {
-        this.send(Action.DISCARD)
-      }
-    }
+  private async turn(state: GameStateView) {
+    const { action, source, target, card, sourceKey } = await turnPrompt(state)
+    this.sendMove(action, source, card, target, sourceKey)
   }
 }
 

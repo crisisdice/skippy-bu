@@ -15,5 +15,6 @@ export const t = {
   failPrompt: ' failed. Please try again.',
   welcome: 'Welcome!',
   youSay: 'You say:',
+  noGameFound: 'No games found',
 }
 

@@ -25,7 +25,7 @@ function playerView(player: Player): PlayerView {
   return {
     key: player.key,
     discard: pilesView(player.discard),
-    stock: player.stock?.[0] ?? null,
+    stock: player.stock,
     nickname: player.name,
     hand: player.hand
   }
@@ -45,16 +45,14 @@ export function toView(gs: GameState, key: string): GameStateView {
     gs.players[playerKey as PlayerKey]?.key === key
   )
 
-  if (match === null) throw new Error('')
-
-  const player = gs.players[match as PlayerKey]
-
-  if (player === null) throw new Error('')
+  if (!match) throw new Error('')
 
   return {
     name: gs.name,
-    building: pilesView(gs.building),
-    player: playerView(player),
+    winner: gs.winner,
+    started: gs.started,
+    building: gs.building,
+    yourKey: match as PlayerKey,
     players: mapPlayers(gs),
     activePlayer: gs.activePlayer,
   }

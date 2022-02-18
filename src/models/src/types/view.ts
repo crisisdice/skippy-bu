@@ -1,20 +1,24 @@
 import { PlayerKey, PileKey } from './keys'
+import { Piles } from './data'
 
 export type GameStateView = {
   name: string
+  started: boolean
+  winner: PlayerKey | null
 
-  building: PilesView
+  building: Piles
 
-  player: PlayerView
-  players: Record<PlayerKey, Omit<PlayerView, 'hand'> | null>
-  activePlayer: PlayerKey | null
+  yourKey: PlayerKey
+  activePlayer: PlayerKey
+
+  players: Record<PlayerKey, PlayerView | null>
 }
 
 export type PlayerView = {
   key: string
   nickname: string
 
-  stock: number
+  stock: number[]
   discard: PilesView 
   hand: number[]
 }

@@ -1,6 +1,7 @@
 import {
   HttpException,
-  Injectable
+  Injectable,
+  Logger
 } from '@nestjs/common'
 
 import {
@@ -17,23 +18,19 @@ import {
   User,
   GameCreateInput,
   initalizeGameState,
-  PlayerKey,
-  initializePlayer,
 } from 'skip-models'
-
-//TODO share routes between client, logic, and crud
-//TODO error handling
-//TODO upgrade directly to ws
 
 /**/
 @Injectable()
 export class GamesService {
   private readonly endpoint: string
+  private readonly logger: Logger
 
   constructor(
-    private readonly configService: ConfigService
+    configService: ConfigService,
   ) {
-    this.endpoint = `${this.configService.get<string>('CRUD_URL')}/${routes.games}`
+    this.endpoint = `${configService.get<string>('CRUD_URL')}/${routes.games}`
+    this.logger = new Logger(GamesService.name)
   }
 
   async createGame(user: User): Promise<Game> {
@@ -41,7 +38,7 @@ export class GamesService {
     const payload: GameCreateInput = {
       creator: { connect: { key: user.key } },
       key,
-      metadata: { test: "test" },
+      metadata: {},
       state: initalizeGameState(user),
     }
     try {
@@ -49,7 +46,8 @@ export class GamesService {
       if (!game) throw new HttpException('Error creating game', 400)
       return game
     } catch (e) {
-      throw e
+      this.logger.error(JSON.stringify(e))
+      throw new HttpException('Error creating game', 400)
     }
   }
 
@@ -57,9 +55,9 @@ export class GamesService {
     try {
       return (await axios.get<Game[]>(this.endpoint + '/search')).data
     } catch (e) {
-      throw e
+      this.logger.error(JSON.stringify(e))
+      throw new HttpException('Error finding games', 400)
     }
   }
-
 }
 

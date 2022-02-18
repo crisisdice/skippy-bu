@@ -17,12 +17,12 @@ export class LobbyClient {
     })
   }
 
-  async createGame(): Promise<string> {
+  async createGame(): Promise<string | null> {
     try {
       const { data: game } = await this.client.post<Game>('/')
       return game.key
     } catch (e) {
-      throw e
+      return null
     }
   }
 

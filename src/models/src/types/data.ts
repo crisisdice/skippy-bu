@@ -1,13 +1,18 @@
-import { PlayerKey, PileKey, HandKey } from './keys'
+import {
+  PlayerKey,
+  PileKey
+} from './keys'
 
 // top -> [] <- bottom
 export type GameState = {
+  name: string
+  started: boolean
   deck: number[]
   discard: number[]
   building: Piles
   players: Record<PlayerKey, Player | null>
-  activePlayer: PlayerKey | null
-  name: string
+  activePlayer: PlayerKey
+  winner: PlayerKey | null
 }
 
 export type Player = {
@@ -19,5 +24,4 @@ export type Player = {
 }
 
 export type Piles = Record<PileKey, number[]>
-export type Hand = Record<HandKey, number | null>
 

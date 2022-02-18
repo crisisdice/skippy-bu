@@ -4,6 +4,7 @@ import {
   Piles,
   Player,
   GameState,
+  PlayerKey,
 } from '../types'
 
 function initializePiles(): Piles {
@@ -29,6 +30,8 @@ export function initalizeGameState(creator: User): GameState {
   return {
     // metadata
     name: creator.nickname,
+    started: false,
+    winner: null,
     // players
     players: {
       player_1: initializePlayer(creator),
@@ -38,7 +41,7 @@ export function initalizeGameState(creator: User): GameState {
       player_5: null,
       player_6: null,
     },
-    activePlayer: null,
+    activePlayer: 'player_1' as PlayerKey,
     // field
     deck: [],
     discard: [],
