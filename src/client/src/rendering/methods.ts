@@ -19,7 +19,7 @@ import {
 function renderGreeting(name: string, turn: boolean | null) {
   const greeting = turn === null
     ? `Hello and welcome, ${ name }.`
-    : `   Hello ${ name }, it is ${ turn ? '' : 'not' } your turn.`
+    : `   Hello ${ name }, it is${ turn ? '' : ' not' } your turn.`
 
   return `${greeting}\n${
     line
@@ -44,7 +44,7 @@ function renderName(name: string) {
 }
 
 export function renderHand(hand: number[]) {
-  const padding = `${Array(5 - hand.length).fill(empty).join('')}  |\n`
+  const padding = `${Array(5 - hand.length).fill(empty).join('')}             |\n`
   const edges = `+${hand.map(() => '------').join('+')}+${padding}`
   const sides = `${leftHandMargin}|${hand.map(() => '      ').join('|')}|${padding}`
   const cards = `${leftHandMargin}${hand.map(card => renderCard(card)).join('')}|${padding}`
@@ -68,19 +68,22 @@ export function renderHand(hand: number[]) {
   }`
 }
 
-function renderPiles(name: string, piles: PilesView | null) {
+function renderPiles(name: string, piles: PilesView | null, stock?: number) {
   if (!piles) return ''
 
   const pileCards = `${Object.keys(piles).map(key => 
       renderCard(piles[key as keyof PilesView])
     ).join('')}|`
+
+  const withStock = !!stock
+  const renderedStock = withStock ? `   ${renderCard(stock)}|`: '           '
     
   return `${
-    renderName(name) }${ emptyTop
+    renderName(name) }${ emptyTop(withStock)
   }${
-    leftPileMargin }${ pileCards }${ rightPileMargin
+    leftPileMargin }${ pileCards }${renderedStock}${ rightPileMargin
   }${
-    emptyBottom
+    emptyBottom(withStock)
   }${
     bars
   }`
@@ -96,7 +99,7 @@ function renderOtherPlayers(state: GameStateView, playerKey: string) {
     })  
     .map(key => {
       const player = state.players[key as PlayerKey]
-      return renderPiles(player!.nickname, player!.discard) // TODO stock
+      return renderPiles(player!.nickname, player!.discard, player!.stock)
     }).join('')
 }
 
@@ -114,14 +117,15 @@ export function printASCIIPlayerView(state: GameStateView) {
     }${
       renderPiles('Shared piles:', state.building)
     }${
-      renderPiles('Your piles:', player.discard)
+      renderPiles('Your piles:', player.discard, player.stock)
     }${
       renderOtherPlayers(state, player.key)
     }${
       line
     }${
-      //renderHand(hand)
-      ''
+      state.activePlayer !== null
+      ? renderHand(player.hand)
+      : ''
     }`
 }
 

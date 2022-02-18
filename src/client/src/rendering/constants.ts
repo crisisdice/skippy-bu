@@ -1,17 +1,20 @@
 
-export const line = '  +-----------------------------------------------------+\n'
-export const bars = '  |                                                     |\n'
+export const line = '  +----------------------------------------------------------------+\n'
+export const bars = '  |                                                                |\n'
 export const leftPileMargin = '  |                    '
 export const rightPileMargin = '    |\n'
-export const emptyTop = `+------+------+------+------+${
+export const emptyTop = (withStock: boolean) =>
+
+`+------+------+------+------+${withStock ? '   +------+' : '           '}${
   rightPileMargin}${
-  leftPileMargin}|      |      |      |      |${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
   rightPileMargin
 }`
-export const emptyBottom = `${
-  leftPileMargin}|      |      |      |      |${
+
+export const emptyBottom = (withStock: boolean) => `${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
   rightPileMargin}${
-  leftPileMargin}+------+------+------+------+${
+  leftPileMargin}+------+------+------+------+${withStock ? '   +------+' : '           '}${
   rightPileMargin
 }`
 export const leftHandMargin = '  |               '
