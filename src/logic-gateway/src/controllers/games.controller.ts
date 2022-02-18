@@ -4,8 +4,6 @@ import {
   Post,
   Response,
   Get,
-  Put,
-  Body,
 } from '@nestjs/common'
 
 import {
@@ -44,16 +42,6 @@ export class GamesController {
     @Response({ passthrough: true }) res: IResponse,
   ) {
     return await this.gamesService.createGame(getUser(res))
-  }
-
-  @Put()
-  @UseGuards(AuthGuard)
-  async joinGame(
-    @Body('key') key: string,
-    @Response({ passthrough: true }) res: IResponse,
-  ) {
-    console.log(key)
-    return await this.gamesService.joinGame(getUser(res), key)
   }
 }
 

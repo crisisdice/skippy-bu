@@ -26,17 +26,6 @@ export class LobbyClient {
     }
   }
 
-  async joinGame(key: string): Promise<string> {
-    try {
-      const { data: game } = await this.client.put<Game>('/', { 
-        key
-      })
-      return game.key
-    } catch (e) {
-      throw e
-    }
-  }
-  
   async fetchGames(): Promise<{ name: string, value: string}[]> {
     try {
       const { data: games } = await this.client.get<Game[]>('/')
