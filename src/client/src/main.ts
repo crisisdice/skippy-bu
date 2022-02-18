@@ -3,7 +3,6 @@ import 'dotenv/config'
 import {
   authorization,
   lobby,
-  game,
 } from './prompts'
 
 import {
@@ -20,7 +19,7 @@ async function main() {
 
   const { key, action } = await lobby(new LobbyClient(apiURL, token))
 
-  await game(new GameClient(wsURL, key, token, action))
+  new GameClient(wsURL, key, token, action)
 
 }
 
