@@ -11,6 +11,7 @@ export const mapPiles = (piles: PileKey[]) => {
   })
 }
 
+// TODO a generic implementation
 
 export const mapCardSource = (source: Source, card: number, key?: PileKey): AnnotatedCard => {
   const mapping = {
@@ -28,3 +29,4 @@ export const mapCardSource = (source: Source, card: number, key?: PileKey): Anno
     }
   }
 }
+
