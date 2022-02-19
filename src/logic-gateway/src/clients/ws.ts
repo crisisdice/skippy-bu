@@ -15,11 +15,8 @@ import {
   Game,
   User,
   routes,
-} from 'skip-models'
-
-import {
   transformationMapping
-} from './export'
+} from 'skip-models'
 
 import {
   setUpUserVerification
