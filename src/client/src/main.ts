@@ -1,6 +1,11 @@
 import 'dotenv/config'
 
 import {
+  routes,
+  configureWs,
+} from 'skip-models'
+
+import {
   authorization,
   lobby,
 } from './prompts'
@@ -8,12 +13,12 @@ import {
 import {
   authorizationClient,
   lobbyClient,
-  game,
+  gameClient,
 } from './clients'
 
 import {
-  routes
-} from 'skip-models'
+  listQuestion
+} from './elements'
 
 // TODO catch initialization errors
 // TODO client error handling (email/nickname taken)
@@ -29,9 +34,11 @@ async function main() {
 
   const { create, fetch } = lobbyClient(`${apiURL}/${routes.games}`, token)
 
-  const { key, action } = await lobby(create, fetch)
+  const { key, isCreate } = await lobby(create, fetch)
 
-  game(wsURL, key, token, action)
+  const { firstMessage, update } = configureWs(key, token, isCreate, listQuestion)
+
+  gameClient({ wsURL, firstMessage, update })
 
 }
 

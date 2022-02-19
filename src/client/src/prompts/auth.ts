@@ -14,6 +14,10 @@ import {
   Register
 } from '../types'
 
+import {
+  Action
+} from './actions'
+
 function authFail(isLogin: boolean, spinner: any) {
   resetTitle()
   spinner.error({ text:
@@ -62,10 +66,5 @@ export async function authorization(login: Login, register: Register) {
     await textQuestion(t.youSay)
     return token
   }
-}
-
-const Action = {
-  LOGIN: 'LOGIN',
-  REGISTER: 'REGISTER'
 }
 

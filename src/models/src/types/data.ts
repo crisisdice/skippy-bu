@@ -15,6 +15,7 @@ export type GameState = {
 }
 
 export type GameStateView = Omit<GameState, 'deck' | 'discard' | 'players'> & {
+  yourTurn: boolean
   yourKey: PlayerKey
   players: PlayersView
 }

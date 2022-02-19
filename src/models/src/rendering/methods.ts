@@ -17,7 +17,7 @@ import {
   PlayerView,
   Piles,
   PileKey,
-} from 'skip-models'
+} from '../types'
 
 import {
   greeting,

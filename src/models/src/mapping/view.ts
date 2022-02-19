@@ -21,10 +21,13 @@ export function toView(gs: GameState, playerKey: string): GameStateView {
 
   if (!yourKey) throw new Error('')
 
+  const yourTurn = yourKey === gs.activePlayer && gs.started
+
   const view: any = { 
     ...gs,
     players,
-    yourKey
+    yourKey,
+    yourTurn,
   }
 
   delete view.deck

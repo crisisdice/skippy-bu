@@ -1,22 +1,7 @@
-import {
-  Action
-} from 'skip-models'
-
-import {
-  listQuestion,
-  spinner,
-} from '../elements'
-
-import {
-  t,
-} from '../i8n'
-
-import {
-  CreateGame,
-  FetchGames,
-} from '../types'
-
-type LobbyReturn = Promise<{ key: string, action: Action.CREATE | Action.JOIN }>
+import { listQuestion, spinner } from '../elements'
+import { t } from '../i8n'
+import { CreateGame, FetchGames, LobbyReturn } from '../types'
+import { Action } from './actions'
 
 async function selectGame(fetch: FetchGames): Promise<string | null> {
   const spin = spinner()
@@ -49,13 +34,9 @@ export async function lobby(create: CreateGame, fetch: FetchGames): LobbyReturn 
     
     if (!key) continue
 
-    const action = isCreate
-      ? Action.CREATE
-      : Action.JOIN
-
     console.clear()
 
-    return { key, action }
+    return { key, isCreate }
   }
 }
 
