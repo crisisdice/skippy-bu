@@ -12,7 +12,7 @@ import {
 
 import {
   UsersService
-} from '../clients'
+} from '../services'
 
 /**/
 @Controller(routes.users)

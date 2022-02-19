@@ -20,8 +20,11 @@ import {
 
 import {
   GamesService,
+} from '../services'
+
+import {
   AuthGuard,
-} from '../clients'
+} from '../auth'
 
 /**/
 @Controller(routes.games)

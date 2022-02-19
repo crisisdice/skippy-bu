@@ -2,7 +2,6 @@
 //TODO upgrade directly to ws
 
 import {
-  WebSocketServer,
   WebSocket
 } from 'ws'
 
@@ -11,41 +10,32 @@ import axios from 'axios'
 import {
   Message,
   Action,
-  toView,
   Game,
   User,
   routes,
-  transformationMapping
-} from 'skip-models'
+} from './inGame'
 
 import {
-  setUpUserVerification
-} from './auth'
+  transformationMapping
+} from './export'
+
+import {
+  toView,
+} from './mapping'
 
 type Group = Map<string, WebSocket>
-type Connections = Map<string, Group>
-type WsArgs = { endpoint: string, secret: string, port: number }
+export type Connections = Map<string, Group>
+type SetupArgs = { endpoint: string, verifyUser: (token: string) => Promise<User> }
 
 export const WS = {
   CONNECTION: 'connection',
-  MESSAGE: 'message'
+  MESSAGE: 'message',
+  OPEN: 'open',
 }
 const locate = 'locate'
 
-export function configureWsServer({ port, endpoint, secret }: WsArgs) {
-  const wss = new WebSocketServer({ port })
-  const connections: Connections = new Map()
-  const handler = setupWs({ endpoint, secret })
-
-  wss.on(WS.CONNECTION, async (ws) => {
-    ws.on(WS.MESSAGE, async (data: any) => await handler(data.toString(), ws, connections))
-  })
-
-}
-
-function setupWs({ endpoint, secret }: Omit<WsArgs, 'port'>) {
+export function setupWs({ endpoint, verifyUser }: SetupArgs) {
   const buildUrl = (route: string) => `${endpoint}/${route}/${locate}`
-  const verifyUser = setUpUserVerification(buildUrl(routes.users), secret)
   const guard = async (data: string) => {
     try {
       const { key, token, move } = JSON.parse(data) as Message
@@ -82,7 +72,7 @@ function setupWs({ endpoint, secret }: Omit<WsArgs, 'port'>) {
 
       const state = transformationMapping(game, user, move)[move.action]()
 
-      let updated
+      let updated: Game
       try { 
         updated = (
           await axios.put<Game>(`${endpoint}/${routes.games}`, {

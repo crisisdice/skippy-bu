@@ -28,8 +28,22 @@ import {
 import {
   GamesService,
   UsersService,
-  configureWsServer,
-} from './clients'
+} from './services'
+
+import {
+  WebSocketServer,
+} from 'ws'
+
+import {
+  routes,
+  setupWs,
+  WS,
+  Connections,
+} from 'skip-models'
+
+import {
+  setUpUserVerification
+} from './auth'
 
 /**/
 @Module({
@@ -76,6 +90,19 @@ async function bootstrap() {
   })
 
   await app.listen(port)
+}
+
+type WsArgs = { endpoint: string, secret: string, port: number }
+
+export function configureWsServer({ port, endpoint, secret }: WsArgs) {
+  const wss = new WebSocketServer({ port })
+  const connections: Connections = new Map()
+  const verifyUser = setUpUserVerification(`${endpoint}/${routes.users}/locate`, secret)
+  const handler = setupWs({ endpoint, verifyUser })
+
+  wss.on(WS.CONNECTION, async (ws) => {
+    ws.on(WS.MESSAGE, async (data: any) => await handler(data.toString(), ws, connections))
+  })
 }
 
 bootstrap()

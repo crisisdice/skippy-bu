@@ -5,11 +5,11 @@ import {
 
 import {
   GamesService
-} from '../../clients'
+} from '../../services'
 
 import {
   GamesController
-} from '../games.controller'
+} from '../games'
 
 describe('GamesController', () => {
   let controller: GamesController;

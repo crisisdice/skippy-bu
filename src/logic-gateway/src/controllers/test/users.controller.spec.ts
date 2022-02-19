@@ -5,11 +5,11 @@ import {
 
 import {
   UsersService
-} from '../../clients'
+} from '../../services'
 
 import {
   UsersController
-} from '../users.controller'
+} from '../users'
 
 describe('UsersController', () => {
   let controller: UsersController
