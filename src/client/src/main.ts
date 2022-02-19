@@ -32,6 +32,7 @@ async function main() {
   const { key, action } = await lobby(create, fetch)
 
   game(wsURL, key, token, action)
+
 }
 
 function readEnv() {

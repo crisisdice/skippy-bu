@@ -17,11 +17,6 @@ import {
   g,
 } from '../i8n'
 
-import {
-  mapCardSource,
-  mapPiles
-} from './utils'
-
 export function winnerPrompt(state: GameStateView) {
   console.log(state.winner === state.yourKey
     ? g.won
@@ -97,3 +92,30 @@ export async function turnPrompt(state: GameStateView) {
 
   throw new Error('wrong action')
 }
+
+const mapPiles = (piles: PileKey[]) => {
+  return piles.map(pile => {
+    return {
+      name: parseInt(pile.slice(-1)).toString(),
+      value: pile
+    }
+  })
+}
+
+const mapCardSource = (source: Source, card: number, key?: PileKey) => {
+  const mapping = {
+    [Source.HAND]: g.hand,
+    [Source.DISCARD]: g.discard,
+    [Source.STOCK]: g.stock,
+  }
+
+  return {
+    name: `${card === 99 ? 'S' : card.toString()} (${mapping[source]})`,
+    value: {
+      source,
+      key: key ?? null,
+      card,
+    }
+  }
+}
+
