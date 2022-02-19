@@ -1,5 +1,5 @@
 import { g } from './i8n'
-import { PileKey, Source, } from '../shared'
+import { PileKey, Source, PlayerView, GameStateView } from '../shared'
 import { AnnotatedCard } from './types'
 
 export const mapPiles = (piles: PileKey[]) => {
@@ -13,7 +13,7 @@ export const mapPiles = (piles: PileKey[]) => {
 
 // TODO a generic implementation
 
-export const mapCardSource = (source: Source, card: number, key?: PileKey): AnnotatedCard => {
+export const annotateCard = (source: Source, card: number, key?: PileKey): AnnotatedCard => {
   const mapping = {
     [Source.HAND]: g.hand,
     [Source.DISCARD]: g.discard,
@@ -28,5 +28,27 @@ export const mapCardSource = (source: Source, card: number, key?: PileKey): Anno
       card,
     }
   }
+}
+
+export function filterPlayableCards(player: PlayerView, state: GameStateView): AnnotatedCard[] {
+  const handCards = annotateHandCards(player)
+  const stockCard = annotateCard(Source.STOCK, player.stock[0])
+  const discardCards = (Object.keys(player.discard) as PileKey[])
+    .map(key => {
+      const pile = player.discard[key]
+      return pile.length
+        ? annotateCard(Source.DISCARD, pile[0], key)
+        : null
+    })
+    .filter((card): card is AnnotatedCard => !!card)
+
+  const playableCardFilter = (card: AnnotatedCard): boolean => {
+    return !!card && whereCardCanBePlayed(card.value.card, state).length > 0
+  }
+  return [ stockCard, ...handCards, ...discardCards].filter(playableCardFilter)
+}
+
+export const annotateHandCards = (player: PlayerView): AnnotatedCard[] => {
+  return player.hand!.map(card => annotateCard(Source.HAND, card))
 }
 
