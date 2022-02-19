@@ -20,10 +20,6 @@ import {
   listQuestion
 } from './elements'
 
-// TODO catch initialization errors
-// TODO client error handling (email/nickname taken)
-// TODO client validation
-
 async function main() {
 
   const { apiURL, wsURL } = readEnv()
