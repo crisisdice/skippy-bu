@@ -1,6 +1,4 @@
-import {
-  prompt
-} from 'inquirer'
+import { prompt } from 'inquirer'
 
 export const textQuestion = async (message: string) => {
   return (await prompt({

@@ -1,16 +1,25 @@
 import {
-  Game,
   PlayerKey,
   GameState,
-  shuffleDealAndDraw,
-  Move,
   Player,
-  draw,
-  Source,
+} from './types'
+
+import {
   initializePlayer,
+} from './mapping'
+
+import {
+  shuffleDealAndDraw,
+  draw,
+} from './methods'
+
+import {
+  Game,
+  Move,
+  Source,
   User,
   Action,
-} from 'skip-models'
+} from './inGame'
 
 function join(game: Game, user: User): GameState {
   const state = game.state

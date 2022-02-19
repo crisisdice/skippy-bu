@@ -1,24 +1,15 @@
 import 'dotenv/config'
-
-import {
-  routes,
-  configureWs,
-} from 'skip-models'
-
-import {
-  authorization,
-  lobby,
-} from './prompts'
-
 import {
   authorizationClient,
   lobbyClient,
   gameClient,
 } from './clients'
-
 import {
-  listQuestion
-} from './elements'
+  routes,
+  configureWs,
+} from 'skip-models'
+import { authorization, lobby } from './prompts'
+import { listQuestion } from './elements'
 
 async function main() {
 

@@ -4,19 +4,9 @@ import {
   resetTitle,
   spinner,
 } from '../elements'
-
-import {
-  t,
-} from '../i8n'
-
-import {
-  Login,
-  Register
-} from '../types'
-
-import {
-  Action
-} from './actions'
+import { t } from '../i8n'
+import { Login, Register } from '../types'
+import { Action } from './actions'
 
 function authFail(isLogin: boolean, spinner: any) {
   resetTitle()
