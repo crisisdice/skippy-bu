@@ -11,6 +11,10 @@ import {
   game,
 } from './clients'
 
+import {
+  routes
+} from 'skip-models'
+
 // TODO catch initialization errors
 // TODO client error handling (email/nickname taken)
 // TODO client validation
@@ -19,7 +23,7 @@ async function main() {
 
   const { apiURL, wsURL } = readEnv()
 
-  const { login, register } = authorizationClient(apiURL)
+  const { login, register } = authorizationClient(`${apiURL}/${routes.users}`)
 
   const token = await authorization(login, register)
 

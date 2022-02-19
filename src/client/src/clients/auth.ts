@@ -1,16 +1,11 @@
 import axios from 'axios'
 
 import {
-  routes,
-} from 'skip-models'
-
-import {
   Login,
   Register,
 } from '../types'
 
-export const authorizationClient = (api: string) => {
-  const baseURL = `${api}/${routes.users}`
+export const authorizationClient = (baseURL: string) => {
   const client = axios.create({ baseURL })
 
   const login: Login = async ({ email, password }) => {
