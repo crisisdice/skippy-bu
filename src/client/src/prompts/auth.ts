@@ -1,8 +1,4 @@
 import {
-  LoginClient
-} from '../clients'
-
-import {
   textQuestion,
   listQuestion,
   resetTitle,
@@ -12,6 +8,11 @@ import {
 import {
   t,
 } from '../i8n'
+
+import {
+  Login,
+  Register
+} from '../types'
 
 function authFail(isLogin: boolean, spinner: any) {
   resetTitle()
@@ -37,7 +38,7 @@ async function credentialPrompts(isLogin: boolean) {
   return { email, password, nickname }
 }
 
-export async function authorization(client: LoginClient) {
+export async function authorization(login: Login, register: Register) {
   await resetTitle()
 
   while(true) {
@@ -51,8 +52,8 @@ export async function authorization(client: LoginClient) {
     const spin = spinner()
     const token = await (
       isLogin 
-        ? client.login(credentials)
-        : client.register(credentials)
+        ? login(credentials)
+        : register(credentials)
     )
     if (!token) {
       authFail(isLogin, spin)
@@ -68,3 +69,4 @@ const Action = {
   LOGIN: 'LOGIN',
   REGISTER: 'REGISTER'
 }
+

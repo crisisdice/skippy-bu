@@ -6,9 +6,9 @@ import {
 } from './prompts'
 
 import {
-  LoginClient,
-  LobbyClient,
-  game
+  authorizationClient,
+  lobbyClient,
+  game,
 } from './clients'
 
 // TODO catch initialization errors
@@ -19,9 +19,13 @@ async function main() {
 
   const { apiURL, wsURL } = readEnv()
 
-  const token = await authorization(new LoginClient(apiURL))
+  const { login, register } = authorizationClient(apiURL)
 
-  const { key, action } = await lobby(new LobbyClient(apiURL, token))
+  const token = await authorization(login, register)
+
+  const { create, fetch } = lobbyClient(apiURL, token)
+
+  const { key, action } = await lobby(create, fetch)
 
   game(wsURL, key, token, action)
 }

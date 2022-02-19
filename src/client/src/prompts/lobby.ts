@@ -8,16 +8,19 @@ import {
 } from '../elements'
 
 import {
-  LobbyClient
-} from '../clients'
-
-import {
   t,
 } from '../i8n'
 
-async function selectGame(client: LobbyClient): Promise<string | null> {
+import {
+  CreateGame,
+  FetchGames,
+} from '../types'
+
+type LobbyReturn = Promise<{ key: string, action: Action.CREATE | Action.JOIN }>
+
+async function selectGame(fetch: FetchGames): Promise<string | null> {
   const spin = spinner()
-  const games = await client.fetchGames()
+  const games = await fetch()
   
   if (!games.length) {
     spin.error({ text: t.noGameFound })
@@ -27,9 +30,8 @@ async function selectGame(client: LobbyClient): Promise<string | null> {
   return await listQuestion(t.choose, games)
 }
 
-export async function lobby(client: LobbyClient): Promise<{ key: string, action: Action.CREATE | Action.JOIN }> {
+export async function lobby(create: CreateGame, fetch: FetchGames): LobbyReturn {
   while (true) {
-
     console.clear()
 
     const isCreate = (
@@ -42,17 +44,18 @@ export async function lobby(client: LobbyClient): Promise<{ key: string, action:
     console.clear()
 
     const key = isCreate 
-      ? await client.createGame()
-      : await selectGame(client)
+      ? await create()
+      : await selectGame(fetch)
+    
+    if (!key) continue
 
     const action = isCreate
       ? Action.CREATE
       : Action.JOIN
-
-    if (!key) continue
 
     console.clear()
 
     return { key, action }
   }
 }
+

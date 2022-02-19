@@ -5,42 +5,40 @@ import {
   Game,
 } from 'skip-models'
 
-export class LobbyClient {
-  private readonly client
-  constructor(
-    baseURL: string,
-    token: string,
-  ) {
-    this.client = axios.create({
+import {
+  CreateGame,
+  FetchGames,
+} from '../types'
+
+export const lobbyClient = (baseURL: string, token: string) => {
+  const client = axios.create({
       baseURL: `${baseURL}/${routes.games}`,
       headers: { 'Authorization': `Bearer ${token}` }
     })
-  }
 
-  async createGame(): Promise<string | null> {
+  const create: CreateGame = async () => {
     try {
-      const { data: game } = await this.client.post<Game>('/')
-      return game.key
+      return (await client.post<Game>('/')).data.key
     } catch (e) {
+      console.error(JSON.stringify(e))
       return null
     }
   }
 
-  async fetchGames(): Promise<{ name: string, value: string}[]> {
+  const fetch: FetchGames = async () => {
     try {
-      const { data: games } = await this.client.get<Game[]>('/')
-
-      return games.map(game => {
+      return (await client.get<Game[]>('/')).data.map(game => {
         return {
           name: game.state.name,
           value: game.key,
         }
       })
-
     } catch (e) {
       console.error(JSON.stringify(e))
       return []
     }
   }
+
+  return { create, fetch }
 }
 

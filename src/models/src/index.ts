@@ -21,7 +21,7 @@ export type User = IUser
 
 export type GameCreateInput = Prisma.GameCreateInput
 
-export enum Action {
+export const enum Action {
   CREATE,
   JOIN,
   START,
@@ -29,7 +29,7 @@ export enum Action {
   DISCARD,
 }
 
-export enum Source {
+export const enum Source {
   HAND,
   STOCK,
   DISCARD,
