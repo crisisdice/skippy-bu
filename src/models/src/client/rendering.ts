@@ -1,28 +1,36 @@
 import {
-  bars,
-  empty,
-  emptyBottom,
-  emptyTop,
-  leftHandMargin,
-  leftPileMargin,
-  line,
-  rightPileMargin,
-  yourHand,
-  name,
-} from './constants'
-
-import {
   GameStateView,
   PlayerKey,
   PlayerView,
   Piles,
   PileKey,
-} from '../../shared'
+} from '../shared'
 
 import {
   greeting,
   g
-} from '../i8n'
+} from './i8n'
+
+const line = '  +----------------------------------------------------------------+\n'
+const name = `  |                       1      2      3      4        ${g.stock}      |\n`
+const bars = '  |                                                                |\n'
+const leftPileMargin = '  |                    '
+const rightPileMargin = '    |\n'
+const emptyTop = (withStock: boolean) =>
+`+------+------+------+------+${withStock ? '   +------+' : '           '}${
+  rightPileMargin}${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
+  rightPileMargin
+}`
+const emptyBottom = (withStock: boolean) => `${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
+  rightPileMargin}${
+  leftPileMargin}+------+------+------+------+${withStock ? '   +------+' : '           '}${
+  rightPileMargin
+}`
+const leftHandMargin = '  |               '
+const empty = '       ' 
+const yourHand = `  |  ${g.yourHand}:   `
 
 function renderGreeting(name: string, turn: boolean, started: boolean) {
   return `${greeting(name, turn, started)}\n${

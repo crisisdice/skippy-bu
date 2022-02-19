@@ -15,6 +15,7 @@ export const g = {
   sharedPiles: 'Shared piles',
   yourPiles: 'Your piles',
   handCards: 'Hand cards',
+  yourHand: 'Your hand',
 }
 
 export const greeting = (name: string, turn: boolean, started: boolean) => {
