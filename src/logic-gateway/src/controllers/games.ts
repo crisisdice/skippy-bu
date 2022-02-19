@@ -15,16 +15,13 @@ import {
 } from 'skip-models'
 
 import {
-  getUser
+  getUser,
+  AuthGuard
 } from '../utils'
 
 import {
   GamesService,
 } from '../services'
-
-import {
-  AuthGuard,
-} from '../auth'
 
 /**/
 @Controller(routes.games)

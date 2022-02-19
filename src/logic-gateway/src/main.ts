@@ -43,7 +43,7 @@ import {
 
 import {
   setUpUserVerification
-} from './auth'
+} from './utils'
 
 /**/
 @Module({
