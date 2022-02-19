@@ -27,7 +27,7 @@ async function main() {
 
   const token = await authorization(login, register)
 
-  const { create, fetch } = lobbyClient(apiURL, token)
+  const { create, fetch } = lobbyClient(`${apiURL}/${routes.games}`, token)
 
   const { key, action } = await lobby(create, fetch)
 

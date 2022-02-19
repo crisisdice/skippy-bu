@@ -40,7 +40,6 @@ async function credentialPrompts(isLogin: boolean) {
 
 export async function authorization(login: Login, register: Register) {
   await resetTitle()
-
   while(true) {
     const isLogin = (
       await listQuestion(t.loginPrompt, [
