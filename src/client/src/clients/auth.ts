@@ -7,7 +7,6 @@ import {
 
 export const authorizationClient = (baseURL: string) => {
   const client = axios.create({ baseURL })
-
   const login: Login = async ({ email, password }) => {
     try {
       const { data: token } = await client.put('/', {
@@ -20,7 +19,6 @@ export const authorizationClient = (baseURL: string) => {
       return null
     }
   }
-
   const register: Register = async ({ email, password, nickname }) => {
     try {
       const { data: token } = await client.post('/', {
@@ -34,7 +32,6 @@ export const authorizationClient = (baseURL: string) => {
       return null
     }
   }
-
   return { login, register }
 }
 
