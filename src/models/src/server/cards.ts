@@ -1,7 +1,7 @@
 import {
   GameState,
   PlayerKey,
-} from '../types'
+} from '../shared'
 
 function getDeck(): number[] {
   // TODO get actual card amounts

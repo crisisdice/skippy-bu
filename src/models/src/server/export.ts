@@ -2,7 +2,12 @@ import {
   PlayerKey,
   GameState,
   Player,
-} from './types'
+  Game,
+  Move,
+  Source,
+  User,
+  Action,
+} from '../shared'
 
 import {
   initializePlayer,
@@ -11,15 +16,7 @@ import {
 import {
   shuffleDealAndDraw,
   draw,
-} from './methods'
-
-import {
-  Game,
-  Move,
-  Source,
-  User,
-  Action,
-} from './inGame'
+} from './cards'
 
 function join(game: Game, user: User): GameState {
   const state = game.state

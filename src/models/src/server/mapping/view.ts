@@ -3,7 +3,7 @@ import {
   GameStateView,
   PlayerKey,
   PlayersView,
-} from '../types'
+} from '../../shared'
 
 export function toView(gs: GameState, playerKey: string): GameStateView {
   let yourKey

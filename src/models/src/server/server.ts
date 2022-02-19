@@ -13,7 +13,7 @@ import {
   Game,
   User,
   routes,
-} from './inGame'
+} from '../shared'
 
 import {
   transformationMapping

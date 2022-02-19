@@ -17,7 +17,7 @@ import {
   PlayerView,
   Piles,
   PileKey,
-} from '../types'
+} from '../../shared'
 
 import {
   greeting,
