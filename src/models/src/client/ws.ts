@@ -34,7 +34,7 @@ export const configureWs = (key: string, token: string, isCreate: boolean, listQ
       : Action.JOIN
   )
   const update = async (ws: WebSocket, data: string): Promise<void> => {
-    const state        = JSON.parse(data) as GameStateView
+    const state = JSON.parse(data) as GameStateView
     const render = () => {
       console.clear()
       console.log(printASCIIPlayerView(state))
@@ -46,6 +46,8 @@ export const configureWs = (key: string, token: string, isCreate: boolean, listQ
     if (!state.started) return await startPrompt(state)
     if (state.winner) return winnerPrompt(state)
     if (state.yourTurn) return await turnPrompt(state)
+
+    render()
   }
   return { firstMessage, update }
 }

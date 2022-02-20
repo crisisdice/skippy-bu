@@ -36,7 +36,7 @@ import {
 
 import {
   routes,
-  setupWs,
+  setupWsHandler,
   WS,
   Connections,
 } from 'skip-models'
@@ -98,10 +98,10 @@ export function configureWsServer({ port, endpoint, secret }: WsArgs) {
   const wss = new WebSocketServer({ port })
   const connections: Connections = new Map()
   const verifyUser = setUpUserVerification(`${endpoint}/${routes.users}/locate`, secret)
-  const handler = setupWs({ endpoint, verifyUser })
+  const handler = setupWsHandler({ endpoint, verifyUser })
 
   wss.on(WS.CONNECTION, async (ws) => {
-    ws.on(WS.MESSAGE, async (data: any) => await handler(data.toString(), ws, connections))
+    ws.on(WS.MESSAGE, async (data: any) => await handler(ws, data.toString(), connections))
   })
 }
 

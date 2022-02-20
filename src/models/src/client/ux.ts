@@ -96,7 +96,10 @@ export const configureUx = (listQuestion: ListQuestion) => {
             : discard(render, player, !playableCards.length)
         )
         if (!move) continue
-        return commit(move)
+
+        commit(move)
+        render()
+        return
       }
     }
   }

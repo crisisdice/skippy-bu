@@ -18,11 +18,6 @@ export type Game = Omit<IGame, 'state'> & { state: GameState }
 export type User = IUser
 export type GameCreateInput = Prisma.GameCreateInput
 
-const pile1 = 'pile_1'
-const pile2 = 'pile_2'
-const pile3 = 'pile_3'
-const pile4 = 'pile_4'
-
 export enum Source {
   HAND  = 'hand',
   STOCK = 'stock',
@@ -69,4 +64,14 @@ export const whereCardCanBePlayed = (card: number | null, state: GameStateView):
     (state.building[key]?.[0] === 99 && state.building[key]?.length === card - 1)
   )
 }
+
+export const WS = {
+  CONNECTION: 'connection',
+  MESSAGE: 'message',
+  OPEN: 'open',
+}
+
+export type Group = Map<string, WebSocket>
+export type Connections = Map<string, Group>
+export const locate = 'locate'
 

@@ -8,6 +8,8 @@ import {
   User,
   Move,
   routes,
+  Connections,
+  locate
 } from '../shared'
 
 import { transformState } from './export'
@@ -15,8 +17,6 @@ import { toView } from './mapping'
 
 import {
   SetupArgs,
-  Connections,
-  locate
 } from './types'
 
 function wsGuard({ endpoint, verifyUser }: SetupArgs) {
@@ -68,7 +68,7 @@ function testMoveValidity(game: Game, move?: Move) {
 export function setupWsHandler({ endpoint, verifyUser }: SetupArgs) {
   const guard = wsGuard({ endpoint, verifyUser })
   return async (ws: WebSocket, data: string, connections: Connections) => {
-    const { game, group, user, action, move } = await guard(ws, data.toString(), connections)
+    const { game, group, user, action, move } = await guard(ws, data, connections)
 
     const updated = (
         await axios.put<Game>(`${endpoint}/${routes.games}`, {
