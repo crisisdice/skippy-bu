@@ -1,11 +1,10 @@
-import { User } from '@prisma/client'
-
 import {
   Piles,
   Player,
   GameState,
   PlayerKey,
-} from '../types'
+  User,
+} from '../../shared'
 
 function initializePiles(): Piles {
   return {

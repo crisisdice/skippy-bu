@@ -1,28 +1,36 @@
 import {
-  bars,
-  empty,
-  emptyBottom,
-  emptyTop,
-  leftHandMargin,
-  leftPileMargin,
-  line,
-  rightPileMargin,
-  yourHand,
-  name,
-} from './constants'
-
-import {
   GameStateView,
   PlayerKey,
   PlayerView,
   Piles,
   PileKey,
-} from '../types'
+} from '../shared'
 
 import {
   greeting,
   g
-} from '../i8n'
+} from './i8n'
+
+const line = '  +----------------------------------------------------------------+\n'
+const name = `  |                       1      2      3      4        ${g.stock}      |\n`
+const bars = '  |                                                                |\n'
+const leftPileMargin = '  |                    '
+const rightPileMargin = '    |\n'
+const emptyTop = (withStock: boolean) =>
+`+------+------+------+------+${withStock ? '   +------+' : '           '}${
+  rightPileMargin}${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
+  rightPileMargin
+}`
+const emptyBottom = (withStock: boolean) => `${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
+  rightPileMargin}${
+  leftPileMargin}+------+------+------+------+${withStock ? '   +------+' : '           '}${
+  rightPileMargin
+}`
+const leftHandMargin = '  |               '
+const empty = '       ' 
+const yourHand = `  |  ${g.yourHand}:   `
 
 function renderGreeting(name: string, turn: boolean, started: boolean) {
   return `${greeting(name, turn, started)}\n${
@@ -32,11 +40,24 @@ function renderGreeting(name: string, turn: boolean, started: boolean) {
   }`
 }
 
-function renderCard(card?: number | null) {
+function renderCard(card: number | null) {
   if (!card) return '|      '
   return card.toString().length === 2
     ? (card === 99
         ? `|   S  `
+
+        : `|  ${card}  `
+      )
+    : `|   ${card}  `
+}
+
+function renderBuildingPileCard(card: number | null, height: number) {
+  if (!card) return '|      '
+  const padding = height.toString().length === 2 ? '' : ' '
+  const skippyWithHeight = `|${padding}S (${height})`
+  return card.toString().length === 2
+    ? (card === 99
+        ? skippyWithHeight
         : `|  ${card}  `
       )
     : `|   ${card}  `
@@ -47,7 +68,7 @@ function renderName(name: string) {
   return`  |  ${name}:${padding}`
 }
 
-export function renderHand(hand: number[]) {
+function renderHand(hand: number[]) {
   const padding = `${Array(5 - hand.length).fill(empty).join('')}             |\n`
   const edges = `+${hand.map(() => '------').join('+')}+${padding}`
   const sides = `${leftHandMargin}|${hand.map(() => '      ').join('|')}|${padding}`
@@ -70,8 +91,20 @@ export function renderHand(hand: number[]) {
   }`
 }
 
-function renderPiles(piles: Piles, stock: boolean, nickname: string, left: string, right: string) {
-  const cards = `${Object.keys(piles).map(key => renderCard(piles[key as PileKey]?.[0])).join('')}|`
+function renderPiles(
+  piles: Piles, 
+  stock: boolean, 
+  nickname: string,
+  left: string,
+  right: string,
+  cardRenderer: (card: number | null, height: number) => string
+) {
+  const cards = `${
+    (Object.keys(piles) as PileKey[]).map(key => {
+      const pile = piles[key]
+      return cardRenderer(pile?.[0], pile.length)
+    }).join('')
+  }|`
   return `${
     renderName(nickname)
   }${
@@ -92,12 +125,12 @@ function renderPlayerPiles(player: PlayerView) {
   const padding = stock.length.toString().length === 2 ? ' ' : '  '
   const renderedStock = `   ${renderCard(stock?.[0] ?? null)}| ${stock.length}${padding}|\n`
   const handCardCount = `  |  ${g.handCards}: ${hand?.length}     `
-  return renderPiles(discard, true, nickname, handCardCount, renderedStock)
+  return renderPiles(discard, true, nickname, handCardCount, renderedStock, renderCard)
 }
 
 function renderBuildingPiles(piles: Piles) {
   const right = `           ${ rightPileMargin }`
-  return renderPiles(piles, false, g.sharedPiles, leftPileMargin, right)
+  return renderPiles(piles, false, g.sharedPiles, leftPileMargin, right, renderBuildingPileCard)
 }
 
 function renderOtherPlayers(state: GameStateView) {
