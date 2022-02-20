@@ -1,0 +1,35 @@
+{
+  "name": "crud-service",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "gen": "yarn prisma generate",
+    "start": "nest start --watch",
+    "build": "nest build",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@nestjs/common": "^8.2.6",
+    "@types/body-parser": "^1.19.2",
+    "@types/node": "16.11.19",
+    "prisma": "3.7.0",
+    "source-map-support": "^0.5.21",
+    "ts-node": "10.4.0",
+    "typescript": "4.5.4"
+  },
+  "dependencies": {
+    "@nestjs/common": "^8.2.6",
+    "@nestjs/config": "^1.1.6",
+    "@nestjs/core": "^8.2.6",
+    "@nestjs/platform-express": "^8.2.6",
+    "@prisma/client": "3.7.0",
+    "body-parser": "^1.19.1",
+    "prisma-controller": "1.0.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.2"
+  },
+  "engines": {
+    "node": ">=12.2.0"
+  },
+  "private": true
+}

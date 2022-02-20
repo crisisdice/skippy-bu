@@ -1,0 +1,31 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "REST API app with cards.",
+  "private": true,
+  "scripts": {
+    "test": "pg_ex 'DELETE FROM games;' 'skippy-bu' && (cd ./client && yarn build && yarn start)",
+    "build": "echo 'TODO prisma' && yarn build:libs && yarn build:apps",
+    "build:libs": "(cd ./prisma-controller && yarn build) && (cd ./models && yarn build)",
+    "build:apps": "(cd ./client && yarn build) && (cd ./crud-service && yarn build) && (cd ./logic-gateway && yarn build)"
+  },
+  "author": "Alexander Daily",
+  "workspaces": {
+    "packages": [
+      "client",
+      "crud-service",
+      "prisma-controller",
+      "logic-gateway",
+      "models"
+    ]
+  },
+  "resolutions": {
+    "**/@prisma/client": "3.7.0",
+    "**/prisma": "3.7.0",
+    "**/typescript": "4.5.4"
+  },
+  "devDependencies": {
+    "lerna": "^4.0.0",
+    "rxjs": "^7.5.2"
+  }
+}
