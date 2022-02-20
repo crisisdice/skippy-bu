@@ -1,5 +1,4 @@
 import hash from 'object-hash'
-
 import {
   PlayerView,
   PlayerKey,
@@ -9,17 +8,12 @@ import {
   Move as IMove,
   MoveType as Move,
 } from '../shared'
-
-import {
-  g,
-} from './i8n'
-
+import { g } from './i8n'
 import {
   AnnotatedCard,
   ListQuestion,
   Option,
 } from './types'
-
 import {
   mapPiles,
   filterPlayableCards,
@@ -46,9 +40,9 @@ export const configureUx = (listQuestion: ListQuestion) => {
           ])
         )
   }
-  const pilesQuestion = genericPrompt(g.choosePile, mapPiles())
   const discard = async (render: () => void, player: PlayerView, noPlayableCards: boolean): Promise<IMove | null> => {
     const hand = annotateHandCards(player)
+    const pilesQuestion = genericPrompt(g.choosePile, mapPiles())
     const cardQuestion = genericPrompt(g.chooseDiscard, hand)
     while (true) {
       render()
@@ -72,6 +66,7 @@ export const configureUx = (listQuestion: ListQuestion) => {
       if (!response) break
       const { source, card } = response
       const targets = whereCardCanBePlayed(card, state)
+      const pilesQuestion = genericPrompt(g.choosePile, mapPiles(targets)) 
       const target = targets.length === 1
           ? targets[0]
           : await pilesQuestion()
