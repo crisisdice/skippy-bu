@@ -1,0 +1,171 @@
+import {
+  GameStateView,
+  PlayerKey,
+  PlayerView,
+  Piles,
+  PileKey,
+} from '../shared'
+
+import {
+  greeting,
+  g
+} from './i8n'
+
+const line = '  +----------------------------------------------------------------+\n'
+const name = `  |                       1      2      3      4        ${g.stock}      |\n`
+const bars = '  |                                                                |\n'
+const leftPileMargin = '  |                    '
+const rightPileMargin = '    |\n'
+const emptyTop = (withStock: boolean) =>
+`+------+------+------+------+${withStock ? '   +------+' : '           '}${
+  rightPileMargin}${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
+  rightPileMargin
+}`
+const emptyBottom = (withStock: boolean) => `${
+  leftPileMargin}|      |      |      |      |${withStock ? '   |      |': '           '}${
+  rightPileMargin}${
+  leftPileMargin}+------+------+------+------+${withStock ? '   +------+' : '           '}${
+  rightPileMargin
+}`
+const leftHandMargin = '  |               '
+const empty = '       ' 
+const yourHand = `  |  ${g.yourHand}:   `
+
+function renderGreeting(name: string, turn: boolean, started: boolean) {
+  return `${greeting(name, turn, started)}\n${
+    line
+  }${
+    bars
+  }`
+}
+
+function renderCard(card: number | null) {
+  if (!card) return '|      '
+  return card.toString().length === 2
+    ? (card === 99
+        ? `|   S  `
+        : `|  ${card}  `
+      )
+    : `|   ${card}  `
+}
+
+function renderBuildingPileCard(card: number | null, height: number) {
+  if (!card) return '|      '
+  const padding = height.toString().length === 2 ? '' : ' '
+  const skippyWithHeight = `|${padding}S (${height})`
+  return card.toString().length === 2
+    ? (card === 99
+        ? skippyWithHeight
+        : `|  ${card}  `
+      )
+    : `|   ${card}  `
+}
+
+function renderName(name: string) {
+  const padding = Array(17 - name.length).fill(' ').join('')
+  return`  |  ${name}:${padding}`
+}
+
+function renderHand(hand: number[]) {
+  const padding = `${Array(5 - hand.length).fill(empty).join('')}             |\n`
+  const edges = `+${hand.map(() => '------').join('+')}+${padding}`
+  const sides = `${leftHandMargin}|${hand.map(() => '      ').join('|')}|${padding}`
+  const cards = `${leftHandMargin}${hand.map(card => renderCard(card)).join('')}|${padding}`
+
+  return `${
+    bars
+  }${
+    yourHand }${ edges
+  }${
+    sides
+  }${
+    cards
+  }${
+    sides
+  }${
+    leftHandMargin }${ edges
+  }${
+    bars
+  }`
+}
+
+function renderPiles(
+  piles: Piles, 
+  stock: boolean, 
+  nickname: string,
+  left: string,
+  right: string,
+  cardRenderer: (card: number | null, height: number) => string
+) {
+  const cards = `${
+    (Object.keys(piles) as PileKey[]).map(key => {
+      const pile = piles[key]
+      return cardRenderer(pile?.[0], pile.length)
+    }).join('')
+  }|`
+  return `${
+    renderName(nickname)
+  }${
+    emptyTop(stock)
+  }${
+    left
+  }${
+    cards
+  }${
+    right
+  }${
+    emptyBottom(stock)
+  }`
+}
+
+function renderPlayerPiles(player: PlayerView) {
+  const { nickname, discard, stock, hand } = player
+  const padding = stock.length.toString().length === 2 ? ' ' : '  '
+  const renderedStock = `   ${renderCard(stock?.[0] ?? null)}| ${stock.length}${padding}|\n`
+  const handCardCount = `  |  ${g.handCards}: ${hand?.length}     `
+  return renderPiles(discard, true, nickname, handCardCount, renderedStock, renderCard)
+}
+
+function renderBuildingPiles(piles: Piles) {
+  const right = `           ${ rightPileMargin }`
+  return renderPiles(piles, false, g.sharedPiles, leftPileMargin, right, renderBuildingPileCard)
+}
+
+function renderOtherPlayers(state: GameStateView) {
+  return Object.keys(state.players)
+    .filter(key => key !== state.yourKey)
+    .map(key => state.players[key as PlayerKey])
+    .filter((player): player is PlayerView => !!player)
+    .map(player => renderPlayerPiles(player)).join('')
+}
+
+export function printASCIIPlayerView(state: GameStateView) {
+    const player = state.players[state.yourKey]
+    const hand = player?.hand
+
+    if (!player || !hand) throw new Error('Missing player')
+
+    const turn = state.activePlayer
+      ? state.players[state.activePlayer]?.key === player.key
+      : false
+
+    return `${
+      renderGreeting(player.nickname, turn, state.started)
+    }${
+      renderOtherPlayers(state)
+    }${
+      renderBuildingPiles(state.building)
+    }${
+      name
+    }${
+      renderPlayerPiles({ ...player, hand, nickname: g.yourPiles })
+    }${
+      state.started
+        ? renderHand(hand)
+        : ''
+    }${
+      line
+    }`
+}
+
