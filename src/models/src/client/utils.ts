@@ -3,13 +3,13 @@ import {
   PlayerView,
   GameStateView,
   whereCardCanBePlayed,
-  piles,
+  piles as base,
   PileKey
 } from '../shared'
 import { g } from './i8n'
 import { AnnotatedCard } from './types'
 
-export function mapPiles() {
+export function mapPiles(piles: PileKey[] = base) {
   return piles.map(pile => {
     return {
       name: parseInt(pile.slice(-1)).toString(),
