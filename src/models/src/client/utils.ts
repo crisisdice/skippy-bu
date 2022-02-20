@@ -1,8 +1,8 @@
 import { g } from './i8n'
-import { PileKey, Source, PlayerView, GameStateView } from '../shared'
+import { PileKey, Source, PlayerView, GameStateView, whereCardCanBePlayed, piles } from '../shared'
 import { AnnotatedCard } from './types'
 
-export const mapPiles = (piles: PileKey[]) => {
+export const mapPiles = () => {
   return piles.map(pile => {
     return {
       name: parseInt(pile.slice(-1)).toString(),
@@ -43,7 +43,7 @@ export function filterPlayableCards(player: PlayerView, state: GameStateView): A
     .filter((card): card is AnnotatedCard => !!card)
 
   const playableCardFilter = (card: AnnotatedCard): boolean => {
-    return !!card && whereCardCanBePlayed(card.value.card, state).length > 0
+    return whereCardCanBePlayed(card.value.card, state).length > 0
   }
   return [ stockCard, ...handCards, ...discardCards].filter(playableCardFilter)
 }

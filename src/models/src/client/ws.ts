@@ -34,22 +34,20 @@ export const configureWs = (key: string, token: string, isCreate: boolean, listQ
     } as Message)
   }
   const { start, turn, winner } = configureUx(listQuestion)
-  const render = (state: GameStateView) => {
-    console.clear()
-    console.log(printASCIIPlayerView(state))
-  }
   const firstMessage = format({
     action: isCreate
       ? Action.CREATE
       : Action.JOIN
   })
   const update = async (ws: WebSocket, data: string): Promise<void> => {
-    const winnerPrompt = winner(() => ws.close())
-    const startPrompt  = start(() => ws.send(format({ action: Action.START })))
-    const turnPrompt   = turn((args: MoveArgs) => ws.send(format(args)))
     const state        = JSON.parse(data) as GameStateView
-
-    render(state)
+    const render = () => {
+      console.clear()
+      console.log(printASCIIPlayerView(state))
+    }
+    const winnerPrompt = winner(() => ws.close(), render)
+    const startPrompt  = start(() => ws.send(format({ action: Action.START })), render)
+    const turnPrompt   = turn((args: MoveArgs) => ws.send(format(args)), render)
 
     if (!state.started) return await startPrompt(state)
     if (state.winner) return winnerPrompt(state)

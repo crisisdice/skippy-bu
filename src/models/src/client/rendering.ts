@@ -45,6 +45,7 @@ function renderCard(card?: number | null) {
   return card.toString().length === 2
     ? (card === 99
         ? `|   S  `
+
         : `|  ${card}  `
       )
     : `|   ${card}  `
