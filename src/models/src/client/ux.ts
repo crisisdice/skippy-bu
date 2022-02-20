@@ -16,6 +16,8 @@ import {
 
 import {
   AnnotatedCard,
+  ListQuestion,
+  Option,
 } from './types'
 
 import {
@@ -23,9 +25,6 @@ import {
   filterPlayableCards,
   annotateHandCards,
 } from './utils'
-
-export type ListQuestion = <T>(question: string, options: Option<T>[]) => Promise<T>
-type Option<T> = { name: string, value: T }
 
 export const configureUx = (listQuestion: ListQuestion) => {
   const genericPrompt = <T>(question: string, options: Option<T>[]) => {
