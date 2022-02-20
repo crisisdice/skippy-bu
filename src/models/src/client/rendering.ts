@@ -56,7 +56,7 @@ function renderName(name: string) {
   return`  |  ${name}:${padding}`
 }
 
-export function renderHand(hand: number[]) {
+function renderHand(hand: number[]) {
   const padding = `${Array(5 - hand.length).fill(empty).join('')}             |\n`
   const edges = `+${hand.map(() => '------').join('+')}+${padding}`
   const sides = `${leftHandMargin}|${hand.map(() => '      ').join('|')}|${padding}`
