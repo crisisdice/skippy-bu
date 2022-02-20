@@ -4,10 +4,10 @@ import {
   GameStateView,
   Message,
   Action,
+  Move,
 } from '../shared'
 
 import {
-  MoveArgs,
   ListQuestion,
 } from './types'
 
@@ -20,25 +20,19 @@ import {
 } from './rendering'
 
 export const configureWs = (key: string, token: string, isCreate: boolean, listQuestion: ListQuestion) => {
-  const format = ({ action, source, card, target, sourceKey }: MoveArgs) => {
+  const format = (action: Action, move?: Move) => {
     return JSON.stringify({
       token,
       key,
-      move: {
-        action,
-        source,
-        sourceKey,
-        card,
-        target,
-      }
+      action,
+      move
     } as Message)
   }
   const { start, turn, winner } = configureUx(listQuestion)
-  const firstMessage = format({
-    action: isCreate
+  const firstMessage = format(isCreate
       ? Action.CREATE
       : Action.JOIN
-  })
+  )
   const update = async (ws: WebSocket, data: string): Promise<void> => {
     const state        = JSON.parse(data) as GameStateView
     const render = () => {
@@ -46,8 +40,8 @@ export const configureWs = (key: string, token: string, isCreate: boolean, listQ
       console.log(printASCIIPlayerView(state))
     }
     const winnerPrompt = winner(() => ws.close(), render)
-    const startPrompt  = start(() => ws.send(format({ action: Action.START })), render)
-    const turnPrompt   = turn((args: MoveArgs) => ws.send(format(args)), render)
+    const startPrompt  = start(() => ws.send(format(Action.START)), render)
+    const turnPrompt   = turn((move: Move) => ws.send(format(Action.MOVE, move)), render)
 
     if (!state.started) return await startPrompt(state)
     if (state.winner) return winnerPrompt(state)

@@ -5,8 +5,9 @@ import {
   PlayerKey,
   whereCardCanBePlayed,
   GameStateView,
-  PileKey,
   Action,
+  Move as IMove,
+  MoveType as Move,
 } from '../shared'
 
 import {
@@ -14,7 +15,6 @@ import {
 } from './i8n'
 
 import {
-  MoveArgs,
   AnnotatedCard,
 } from './types'
 
@@ -23,12 +23,6 @@ import {
   filterPlayableCards,
   annotateHandCards,
 } from './utils'
-
-type Discard = {
-  action: Action
-  card: number
-  target: PileKey
-}
 
 export type ListQuestion = <T>(question: string, options: Option<T>[]) => Promise<T>
 type Option<T> = { name: string, value: T }
@@ -45,16 +39,16 @@ export const configureUx = (listQuestion: ListQuestion) => {
   }
   const actionPrompt = async (playableCards: AnnotatedCard[]) => {
     return !playableCards.length
-      ? Action.DISCARD
+      ? Move.DISCARD
       : (
           await listQuestion(g.actionPrompt, [
-            { name: g.play, value: Action.PLAY },
-            { name: g.discardAndEnd, value: Action.DISCARD },
+            { name: g.play, value: Move.PLAY },
+            { name: g.discardAndEnd, value: Move.DISCARD },
           ])
         )
   }
   const pilesQuestion = genericPrompt(g.choosePile, mapPiles())
-  const discard = async (render: () => void, player: PlayerView, noPlayableCards: boolean): Promise<Discard | null> => {
+  const discard = async (render: () => void, player: PlayerView, noPlayableCards: boolean): Promise<IMove | null> => {
     const hand = annotateHandCards(player)
     const cardQuestion = genericPrompt(g.chooseDiscard, hand)
     while (true) {
@@ -67,27 +61,27 @@ export const configureUx = (listQuestion: ListQuestion) => {
       const { card } = response
       const target = await pilesQuestion()
       if (!target) continue
-      return { action: Action.DISCARD, card, target }
+      return { type: Move.DISCARD, card, target }
     }
     return null
   }
-  const play = async (render: () => void, state: GameStateView, playableCards: AnnotatedCard[]) => {
+  const play = async (render: () => void, state: GameStateView, playableCards: AnnotatedCard[]): Promise<IMove | null> => {
     const cardQuestion = genericPrompt(g.choosePlay, playableCards)
     while (true) {
       render()
       const response = await cardQuestion()
       if (!response) break
-      const { source, card, key } = response
+      const { source, card } = response
       const targets = whereCardCanBePlayed(card, state)
       const target = targets.length === 1
           ? targets[0]
           : await pilesQuestion()
       if (!target) continue
-      return { action: Action.PLAY, source, card, target, sourceKey: key ?? undefined }
+      return { type: Move.PLAY, source, card, target }
     }
     return null
   }
-  const turn = (commit: (args: MoveArgs) => void, render: () => void) => {
+  const turn = (commit: (args: IMove) => void, render: () => void) => {
     return async (state: GameStateView) => {
       const player = state.players[state.yourKey]
       if (player === null || !player.hand) throw new Error('Corrupt state')
@@ -97,7 +91,7 @@ export const configureUx = (listQuestion: ListQuestion) => {
         render()
         const action = await actionPrompt(playableCards)
         const move = await (
-          action === Action.PLAY
+          action === Move.PLAY
             ? play(render, state, playableCards)
             : discard(render, player, !playableCards.length)
         )

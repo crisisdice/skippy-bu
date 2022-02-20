@@ -1,10 +1,4 @@
-//TODO share routes between client, logic, and crud
-//TODO upgrade directly to ws
-
-import {
-  WebSocket
-} from 'ws'
-
+import { WebSocket } from 'ws'
 import axios from 'axios'
 
 import {
@@ -12,82 +6,83 @@ import {
   Action,
   Game,
   User,
+  Move,
   routes,
 } from '../shared'
 
-import {
-  transformationMapping
-} from './export'
+import { transformState } from './export'
+import { toView } from './mapping'
 
 import {
-  toView,
-} from './mapping'
+  SetupArgs,
+  Connections,
+  locate
+} from './types'
 
-type Group = Map<string, WebSocket>
-export type Connections = Map<string, Group>
-type SetupArgs = { endpoint: string, verifyUser: (token: string) => Promise<User> }
-
-export const WS = {
-  CONNECTION: 'connection',
-  MESSAGE: 'message',
-  OPEN: 'open',
-}
-const locate = 'locate'
-
-export function setupWs({ endpoint, verifyUser }: SetupArgs) {
+function wsGuard({ endpoint, verifyUser }: SetupArgs) {
   const buildUrl = (route: string) => `${endpoint}/${route}/${locate}`
-  const guard = async (data: string) => {
+  return async (ws: WebSocket, data: string, connections: Connections) => {
     try {
-      const { key, token, move } = JSON.parse(data) as Message
+      const { key, token, action, move } = JSON.parse(data) as Message
       const { data: game } = await axios.get<Game>(buildUrl(routes.games), {
         params: {
-         key
+          key
         }
       })
       const user = await verifyUser(token)
 
       if (!user && !game) throw new Error('Fatal not found')
-      return { game, user, move }
+
+      const group = action === Action.CREATE
+        ? createGroup(ws, connections, game, user)
+        : connections.get(game.key)
+
+      if (!group) throw new Error('Group not found')
+
+      if (action === Action.JOIN) group.set(user.key, ws)
+
+      if (!testMoveValidity(game, move)) throw new Error('Invalid move')
+
+      return { game, group, user, action, move }
     } catch (e) {
       throw e
     }
   }
-  const createGroup = (ws: WebSocket, connections: Connections, game: Game, user: User) => {
-    const group = new Map()
-    group.set(user.key, ws)
-    connections.set(game.key, group)
-    return group
-  }
+}
 
-  return async (data: string, ws: WebSocket, connections: Connections) => {
-    const { game, user, move } = await guard(data.toString())
+function createGroup(ws: WebSocket, connections: Connections, game: Game, user: User) {
+  const group = new Map()
+  group.set(user.key, ws)
+  connections.set(game.key, group)
+  return group
+}
 
-    const group = move.action === Action.CREATE
-      ? createGroup(ws, connections, game, user)
-      : connections.get(game.key)
+function testMoveValidity(game: Game, move?: Move) {
+  // TODO share routes between client, logic, and crud
+  // TODO upgrade directly to ws
+  // TODO log move sequences
+  // TODO move validation
+  return true
+}
 
-      if (!group) throw new Error('Group not found')
+export function setupWsHandler({ endpoint, verifyUser }: SetupArgs) {
+  const guard = wsGuard({ endpoint, verifyUser })
+  return async (ws: WebSocket, data: string, connections: Connections) => {
+    const { game, group, user, action, move } = await guard(ws, data.toString(), connections)
 
-      if (move.action === Action.JOIN) group.set(user.key, ws)
+    const updated = (
+        await axios.put<Game>(`${endpoint}/${routes.games}`, {
+          state: transformState(game, user, move)[action]()
+        }, {
+          params: { key: game.key }
+        })
+      ).data
 
-      const state = transformationMapping(game, user, move)[move.action]()
+    if (updated === null) throw new Error('Error updating game state')
 
-      let updated: Game
-      try { 
-        updated = (
-          await axios.put<Game>(`${endpoint}/${routes.games}`, {
-            state
-          }, {
-            params: { key: game.key }
-          })
-        ).data
-        if (updated === null) throw new Error('Error updating game state')
-      } catch (e) {
-        throw e
-      }
-      group.forEach((socket: WebSocket, key: string) => {
-        socket.send(JSON.stringify(toView(game.state, key)))
-      })
+    group.forEach((socket: WebSocket, key: string) => {
+      socket.send(JSON.stringify(toView(game.state, key)))
+    })
   }
 }
 

@@ -1,8 +1,8 @@
 import {
   GameState,
   GameStateView,
-  PileKey
-} from '../shared'
+  PileKey,
+} from './data'
 
 import {
   Prisma,
@@ -14,39 +14,47 @@ export const routes = {
   games: 'games',
   users: 'users',
 }
-
 export type Game = Omit<IGame, 'state'> & { state: GameState }
-
 export type User = IUser
-
 export type GameCreateInput = Prisma.GameCreateInput
 
-export const enum Action {
+const pile1 = 'pile_1'
+const pile2 = 'pile_2'
+const pile3 = 'pile_3'
+const pile4 = 'pile_4'
+
+export enum Source {
+  HAND  = 'hand',
+  STOCK = 'stock',
+  PILE1 = 'pile_1',
+  PILE2 = 'pile_2',
+  PILE3 = 'pile_3',
+  PILE4 = 'pile_4',
+}
+export enum Action {
   CREATE,
   JOIN,
   START,
-  PLAY,
-  DISCARD,
+  MOVE,
 }
 
-export const enum Source {
-  HAND,
-  STOCK,
-  DISCARD,
+export enum MoveType {
+  PLAY,
+  DISCARD
 }
 
 export type Message = {
-  token: string // for auth and to get user
-  key: string   // to find game
-  move: Move
+  token: string
+  key: string
+  action: Action
+  move?: Move
 }
 
 export type Move = {
-  action: Action
-  source: Source
-  sourceKey?: PileKey
+  type: MoveType
   card: number
   target: PileKey
+  source?: Source
 }
 
 export const piles = [ 'pile_1', 'pile_2', 'pile_3', 'pile_4' ] as PileKey[]
