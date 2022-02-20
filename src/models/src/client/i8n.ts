@@ -16,7 +16,7 @@ export const g = {
   yourPiles: 'Your piles',
   handCards: 'Hand cards',
   yourHand: 'Your hand',
-  goBack: 'Go back',
+  goBack: '[Back]',
 }
 
 export const greeting = (name: string, turn: boolean, started: boolean) => {
