@@ -1,3 +1,9 @@
+const getParent = () => {
+  const parent   = document.getElementById('app')
+  parent.textContent = ''
+  return parent
+}
+
 function getInput(id, text) {
   const label = document.createElement('label')
   const input = document.createElement('input')
@@ -18,12 +24,12 @@ function getButton(text, callback) {
 }
 
 function renderLogin() {
-  const parent   = document.getElementById('app')
+  const parent = getParent()
   const em = 'em'
   const pw = 'pw'
   const email = getInput(em, 'Email ')
   const password = getInput(pw, 'Password ')
-  const submit   = getButton('Login', () => login(em, pw))
+  const submit = getButton('Login', () => login(em, pw))
 
   parent.appendChild(email)
   parent.appendChild(password)
@@ -31,8 +37,7 @@ function renderLogin() {
 }
 
 function renderLobby(token) {
-  const parent   = document.getElementById('app')
-  parent.textContent = ''
+  const parent = getParent()
   const cr = getButton('Create a Game', () => create(token))
   const jn = getButton('Join a Game', () => find(token))
 
@@ -41,9 +46,7 @@ function renderLobby(token) {
 }
 
 function renderGames(games, token) {
-  const parent   = document.getElementById('app')
-  parent.textContent = ''
-  
+  const parent = getParent()
   games.forEach((game) => {
     const jn = getButton(game.state.name, () => join(game, token))
     parent.appendChild(jn)
@@ -53,8 +56,9 @@ function renderGames(games, token) {
 async function login(em, pw) {
   const email = document.getElementById(em).value
   const password = document.getElementById(pw).value
-  const cred = { email, password } 
-  const token = await getToken(cred)
+  const data = { email, password } 
+  const response = await request({ method: 'PUT', endpoint: '/users', data })
+  const token = response.headers.get('x-access-token')
   renderLobby(token)
 }
 
@@ -73,42 +77,32 @@ async function find(token) {
   renderGames(games, token)
 }
 
-async function getToken(data) {
-  const response = await request({ method: 'PUT', endpoint: '/users', data })
-  return response.headers.get('x-access-token')
+async function list(name, options) {
+  const timeout = async ms => new Promise(res => setTimeout(res, ms))
+  const parent = document.getElementById('app')
+  const question = document.createElement('span')
+  question.innerHTML = name
+  parent.appendChild(question)
+
+  let selected
+  options.forEach((option) => {
+    const jn = getButton(option.name, () => {
+      selected = option.value
+    })
+    parent.appendChild(jn)
+  })
+  while (!selected) await timeout(50)
+  return selected
+}
+
+function render(state) {
+  const parent = getParent()
+  const game = document.createElement('span')
+  game.innerHTML = 'the game'
+  parent.appendChild(game)
 }
 
 async function ws(key, token, isCreate) {
-  const list = async (name, options) => {
-    const parent = document.getElementById('app')
-    
-    let next = false; // this is to be changed on user input
-    let selected
-
-    const question = document.createElement('span')
-    question.innerHTML = name
-    parent.appendChild(question)
-    options.forEach((option) => {
-      const jn = getButton(option.name, () => {
-        next = true
-        selected = option.value
-      })
-      parent.appendChild(jn)
-    })
-
-    const timeout = async ms => new Promise(res => setTimeout(res, ms));
-
-    while (next === false) await timeout(50); // pauses script
-
-    return selected
-  }
-  const render = (state) => {
-    const parent   = document.getElementById('app')
-    parent.textContent = ''
-    const game = document.createElement('span')
-    game.innerHTML = 'the game'
-    parent.appendChild(game)
-  }
   skippy.configureWs('ws://localhost:3002', key, token, isCreate, list, render)
 }
 
