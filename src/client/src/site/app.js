@@ -1,7 +1,3 @@
-export function main() {
-  renderLogin()
-}
-
 function getInput(id, text) {
   const label = document.createElement('label')
   const input = document.createElement('input')
@@ -63,11 +59,24 @@ async function login(em, pw) {
 }
 
 async function create(token) {
-  const game = await request('POST', '/games', token, {})
+  const game = await request({ method: 'POST', endpoint: '/games', token })
   const { key } = await game.json()
   ws(key, token, true)
 }
 
+async function join(game, token) {
+  ws(game.key, token, false)
+}
+
+async function find(token) {
+  const games = await (await request({ method: 'GET', endpoint: '/games', token })).json()
+  renderGames(games, token)
+}
+
+async function getToken(data) {
+  const response = await request({ method: 'PUT', endpoint: '/users', data })
+  return response.headers.get('x-access-token')
+}
 
 async function ws(key, token, isCreate) {
   const list = async (name, options) => {
@@ -97,53 +106,28 @@ async function ws(key, token, isCreate) {
     const parent   = document.getElementById('app')
     parent.textContent = ''
     const game = document.createElement('span')
-    game.innerHTML = skippy.printASCIIPlayerView(state)
+    game.innerHTML = 'the game'
     parent.appendChild(game)
   }
   skippy.configureWs('ws://localhost:3002', key, token, isCreate, list, render)
 }
 
-async function join(game, token) {
-  ws(game.key, token, false)
-}
-
-async function find(token) {
-  const games = await (await request('GET', '/games', token)).json()
-  console.log(games)
-  renderGames(games, token)
-}
-
-async function getToken(data) {
-  const url = 'http://localhost:3001/users'
-  const response = await fetch(url, {
-    method: 'PUT',
-    mode: 'cors',
-    cache: 'no-cache',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    redirect: 'follow',
-    referrerPolicy: 'no-referrer',
-    body: JSON.stringify(data)
-  })
-  return response.headers.get('x-access-token')
-}
-
-async function request(method, endpoint = '/', token, data = {}) {
+async function request({ method, endpoint, token, data }) {
   const url = 'http://localhost:3001'
+  const auth = token ? { 'Authorization': `Bearer ${token}` } : undefined
   const response = await fetch(url + endpoint, {
     method,
     mode: 'cors',
     cache: 'no-cache',
     credentials: 'same-origin',
     headers: {
+      ...auth,
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
     },
     referrerPolicy: 'no-referrer',
     body: method === 'GET' ? undefined : JSON.stringify(data)
-  });
+  })
   return response
 }
 
-main()
+renderLogin()
