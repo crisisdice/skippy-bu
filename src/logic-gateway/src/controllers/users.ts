@@ -3,7 +3,11 @@ import {
   Controller,
   Post,
   Put,
+  Response,
+  Header,
 } from '@nestjs/common'
+
+import { Response as Res } from 'express';
 
 import {
   Credentials,
@@ -23,13 +27,21 @@ export class UsersController {
   }
   
   @Post()
-  async register(@Body() body: Credentials) {
-    return await this.usersService.register(body)
+  async register(
+    @Body() body: Credentials,
+    @Response() res: Res) {
+    const token = await this.usersService.register(body)
+    return res.set({ 'x-access-token': token }).json({ hello: 'world' });
   }
 
   @Put()
-  async login(@Body() body: Credentials) {
-    return await this.usersService.login(body)
+  @Header('Access-Control-Expose-Headers', 'x-access-token')
+  async login(
+    @Body() body: Credentials,
+    @Response() res: Res) {
+    console.log(body)
+    const token = await this.usersService.login(body)
+    return res.set({ 'x-access-token': token }).json({ hello: 'world' });
   }
 }
 

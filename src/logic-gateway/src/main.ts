@@ -80,6 +80,7 @@ async function bootstrap() {
   app.useLogger(app.get(Logger))
   app.use(bodyParser.json({ limit: '50mb' }))
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
+  app.enableCors()
 
   const port = parseInt(configService.get<string>('PORT') ?? '3001')
 
