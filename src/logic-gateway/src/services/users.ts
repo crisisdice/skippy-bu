@@ -64,7 +64,7 @@ export class UsersService {
   }
 
   public async login({ email, password }: Credentials): Promise<string> {
-    if (!email || !password) throw new HttpException('', 400)
+    if (!email || !password) throw new HttpException('Credentials missing', 400)
     
     try {
       const { data: user } = await axios.get<User>(

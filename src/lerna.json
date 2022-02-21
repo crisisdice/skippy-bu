@@ -1,6 +1,5 @@
 {
   "packages": [
-    "./client/",
     "./models/",
     "./crud-service/",
     "./logic-gateway/",

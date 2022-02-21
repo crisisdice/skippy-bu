@@ -1,6 +1,5 @@
 import hash from 'object-hash'
 import {
-  PlayerView,
   PlayerKey,
   whereCardCanBePlayed,
   GameStateView,
@@ -20,7 +19,10 @@ import {
   annotateHandCards,
 } from './utils'
 
-export const configureUx = (listQuestion: ListQuestion) => {
+export const configureUx = (
+  listQuestion: ListQuestion,
+  render: (state: GameStateView) => void,
+) => {
   const genericPrompt = <T>(question: string, options: Option<T>[]) => {
     const back = { name: g.goBack, value: hash(question) as unknown as T }
     const optionsWithBack = [ ...options, back ]
@@ -40,12 +42,14 @@ export const configureUx = (listQuestion: ListQuestion) => {
           ])
         )
   }
-  const discard = async (render: () => void, player: PlayerView, noPlayableCards: boolean): Promise<IMove | null> => {
+  const discard = async (state: GameStateView, noPlayableCards: boolean): Promise<IMove | null> => {
+    const player = state.players[state.yourKey]
+    if (player === null || !player.hand) throw new Error('Corrupt state')
     const hand = annotateHandCards(player)
     const pilesQuestion = genericPrompt(g.choosePile, mapPiles())
     const cardQuestion = genericPrompt(g.chooseDiscard, hand)
     while (true) {
-      render()
+      render(state)
       const response = await (noPlayableCards
         ? listQuestion(g.chooseDiscard, hand)
         : cardQuestion()
@@ -58,10 +62,10 @@ export const configureUx = (listQuestion: ListQuestion) => {
     }
     return null
   }
-  const play = async (render: () => void, state: GameStateView, playableCards: AnnotatedCard[]): Promise<IMove | null> => {
+  const play = async (state: GameStateView, playableCards: AnnotatedCard[]): Promise<IMove | null> => {
     const cardQuestion = genericPrompt(g.choosePlay, playableCards)
     while (true) {
-      render()
+      render(state)
       const response = await cardQuestion()
       if (!response) break
       const { source, card } = response
@@ -75,50 +79,45 @@ export const configureUx = (listQuestion: ListQuestion) => {
     }
     return null
   }
-  const turn = (commit: (args: IMove) => void, render: () => void) => {
-    return async (state: GameStateView) => {
-      const player = state.players[state.yourKey]
-      if (player === null || !player.hand) throw new Error('Corrupt state')
-      const playableCards = filterPlayableCards(player, state)
+  const turn = async (state: GameStateView, commit: (args: IMove) => void) => {
+    const player = state.players[state.yourKey]
+    if (player === null || !player.hand) throw new Error('Corrupt state')
+    const playableCards = filterPlayableCards(player, state)
 
-      while (true) {
-        render()
-        const action = await actionPrompt(playableCards)
-        const move = await (
-          action === Move.PLAY
-            ? play(render, state, playableCards)
-            : discard(render, player, !playableCards.length)
-        )
-        if (!move) continue
-
-        commit(move)
-        render()
-        return
-      }
-    }
-  }
-  const start = (start: () => void, render: () => void) => {
-    return async (state: GameStateView) => {
-      const isCreator = state.yourKey === PlayerKey.One
-      const moreThanTwoPlayers = state.players.player_2 !== null
-      render()
-      if (isCreator && moreThanTwoPlayers) {
-        await listQuestion(g.start, [
-          { name: g.ok, value: Action.START },
-        ])
-        start()
-      }
-    }
-  }
-  const winner = (end: () => void, render: () => void) => {
-    return (state: GameStateView) => {
-      render()
-      console.log(state.winner === state.yourKey
-        ? g.won
-        : g.lost
+    while (true) {
+      render(state)
+      const action = await actionPrompt(playableCards)
+      const move = await (
+        action === Move.PLAY
+          ? play(state, playableCards)
+          : discard(state, !playableCards.length)
       )
-      end()
+      if (!move) continue
+
+      commit(move)
+      render(state)
+      return
     }
+  }
+  const start = async (state: GameStateView, deal: () => void) => {
+    const isCreator = state.yourKey === PlayerKey.One
+    const moreThanTwoPlayers = state.players.player_2 !== null
+    console.log(render)
+    render(state)
+    if (isCreator && moreThanTwoPlayers) {
+      await listQuestion(g.start, [
+        { name: g.ok, value: Action.START },
+      ])
+      deal()
+    }
+  }
+  const winner = async (state: GameStateView, end: () => void) => {
+    render(state)
+    console.log(state.winner === state.yourKey
+      ? g.won
+      : g.lost
+    )
+    end()
   }
   return { start, turn, winner }
 }

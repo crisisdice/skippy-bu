@@ -6,11 +6,13 @@
     "build": "npx tsc"
   },
   "devDependencies": {
+    "@types/ws": "^8.2.3",
     "ts-node": "10.4.0",
     "typescript": "4.5.4"
   },
   "dependencies": {
-    "object-hash": "^3.0.0"
+    "object-hash": "^3.0.0",
+    "ws": "^8.5.0"
   },
   "private": true
 }
