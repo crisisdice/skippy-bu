@@ -9,9 +9,10 @@ import {
   Action,
   MoveType,
   PileKey,
-} from '../shared'
+} from 'skip-models'
 
 import {
+  initalizeGameState,
   initializePlayer,
 } from './mapping'
 

@@ -6,7 +6,7 @@ import {
   Action,
   Move as IMove,
   MoveType as Move,
-} from '../shared'
+} from 'skip-models'
 import { g } from './i8n'
 import {
   AnnotatedCard,

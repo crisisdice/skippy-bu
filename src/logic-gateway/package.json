@@ -16,7 +16,7 @@
     "jsonwebtoken": "^8.5.1",
     "object-hash": "^2.2.0",
     "reflect-metadata": "^0.1.13",
-    "skip-models": "1.0.0"
+    "skip-engine": "1.0.0"
   },
   "devDependencies": {
     "@nestjs/testing": "^8.2.6",

@@ -17,8 +17,11 @@ import {
   Game,
   User,
   GameCreateInput,
-  initalizeGameState,
 } from 'skip-models'
+
+import {
+  initalizeGameState,
+} from 'skip-engine'
 
 /**/
 @Injectable()

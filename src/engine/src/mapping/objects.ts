@@ -4,7 +4,7 @@ import {
   GameState,
   PlayerKey,
   User,
-} from '../../shared'
+} from 'skip-models'
 
 function initializePiles(): Piles {
   return {

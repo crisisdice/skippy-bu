@@ -3,7 +3,7 @@ import {
   GameStateView,
   PlayerKey,
   PlayersView,
-} from '../../shared'
+} from 'skip-models'
 
 export function toView(gs: GameState, playerKey: string): GameStateView {
   let yourKey

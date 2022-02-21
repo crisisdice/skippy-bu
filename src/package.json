@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "test": "pg_ex 'DELETE FROM games;' 'skippy-bu' && (cd ./client && yarn build && yarn start)",
-    "build": "echo 'TODO prisma' && yarn build:libs && yarn build:apps",
-    "build:libs": "(cd ./prisma-controller && yarn build) && (cd ./models && yarn build)",
+    "build": "yarn prisma generate && yarn build:libs && yarn build:apps",
+    "build:libs": "(cd ./prisma-controller && yarn build) &&  (cd ./engine && yarn build) && (cd ./models && yarn build)",
     "build:apps": "(cd ./client && yarn build) && (cd ./crud-service && yarn build) && (cd ./logic-gateway && yarn build)"
   },
   "author": "Alexander Daily",
@@ -16,7 +16,8 @@
       "crud-service",
       "prisma-controller",
       "logic-gateway",
-      "models"
+      "models",
+      "engine"
     ]
   },
   "resolutions": {

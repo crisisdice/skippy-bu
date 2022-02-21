@@ -2,6 +2,7 @@
   "packages": [
     "./client/",
     "./models/",
+    "./engine/",
     "./crud-service/",
     "./logic-gateway/",
     "./prisma-controller"

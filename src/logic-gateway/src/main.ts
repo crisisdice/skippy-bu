@@ -36,10 +36,13 @@ import {
 
 import {
   routes,
-  setupWsHandler,
   WS,
   Connections,
 } from 'skip-models'
+
+import {
+  setupWsHandler,
+} from 'skip-engine'
 
 import {
   setUpUserVerification

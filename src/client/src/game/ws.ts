@@ -4,7 +4,7 @@ import {
   Message,
   Action,
   Move,
-} from '../shared'
+} from 'skip-models'
 
 import {
   ListQuestion,

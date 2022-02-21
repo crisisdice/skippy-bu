@@ -1,7 +1,7 @@
 import {
   GameState,
   PlayerKey,
-} from '../shared'
+} from 'skip-models'
 
 function getDeck(): number[] {
   // TODO get actual card amounts

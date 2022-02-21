@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@prisma/client": "^3.9.2",
-    "object-hash": "^3.0.0"
+    "object-hash": "^3.0.0",
+    "skip-models": "file:../models"
   },
   "private": true
 }

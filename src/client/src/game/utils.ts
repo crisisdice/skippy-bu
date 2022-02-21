@@ -5,7 +5,7 @@ import {
   whereCardCanBePlayed,
   piles as base,
   PileKey
-} from '../shared'
+} from 'skip-models'
 import { g } from './i8n'
 import { AnnotatedCard } from './types'
 

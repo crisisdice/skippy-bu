@@ -10,7 +10,7 @@ import {
   routes,
   Connections,
   locate
-} from '../shared'
+} from 'skip-models'
 
 import { transformState } from './export'
 import { toView } from './mapping'
