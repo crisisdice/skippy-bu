@@ -1,7 +1,7 @@
 #### enviroment variables
 src/crud-service/.env
 src/logic-gateway/.env
-src/client/.env
+src/client/src/site/bundle.js
 
 #### node stuff
 src/**/node_modules/
