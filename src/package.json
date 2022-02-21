@@ -12,6 +12,7 @@
   "author": "Alexander Daily",
   "workspaces": {
     "packages": [
+      "client",
       "crud-service",
       "prisma-controller",
       "logic-gateway",
