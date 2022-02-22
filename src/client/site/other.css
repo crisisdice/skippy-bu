@@ -1,7 +1,3 @@
-<html>
-  <head>
-    <link rel="stylesheet" href="cards.css">
-    <style>
       .pileLabel {
         display: block;
         width: 500px;
@@ -60,12 +56,3 @@
       .unselected {
         background-color: white;
       }
-    </style>
-  </head>
-  <body>
-    <div id="app"></div> 
-  </body>
-  <script src="bundle.js"></script>
-  <script type="module" src="app.js"></script>
-</html>
-
