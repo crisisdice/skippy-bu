@@ -1,83 +1,38 @@
-import hash from 'object-hash'
 import {
   PlayerKey,
-  whereCardCanBePlayed,
   GameStateView,
   Action,
   Move as IMove,
   MoveType as Move,
+  PileKey,
+  Source,
 } from 'skip-models'
 import { g } from './i8n'
 import {
   AnnotatedCard,
   ListQuestion,
-  Option,
 } from './types'
 import {
-  mapPiles,
   filterPlayableCards,
-  annotateHandCards,
 } from './utils'
 
 export const configureUx = (
   listQuestion: ListQuestion,
+  handQuestion: (question: string) => Promise<number>,
+  discardQuestion: (question: string) => Promise<PileKey>,
+  cardQuestion: (question: string) => Promise<{ card: number, source: Source }>,
+  playQuestion: (question: string) => Promise<PileKey>,
   render: (state: GameStateView) => void,
 ) => {
-  const genericPrompt = <T>(question: string, options: Option<T>[]) => {
-    const back = { name: g.goBack, value: hash(question) as unknown as T }
-    const optionsWithBack = [ ...options, back ]
-    return async () => {
-      const response = await listQuestion(question, optionsWithBack)
-      const goBack = response === back.value
-      return goBack ? null : response
-    }
+  const discard = async (): Promise<IMove | null> => {
+    const card = await handQuestion(g.chooseDiscard)
+    const target = await discardQuestion(g.choosePile)
+    return { type: Move.DISCARD, card, target }
   }
-  const actionPrompt = async (playableCards: AnnotatedCard[]) => {
-    return !playableCards.length
-      ? Move.DISCARD
-      : (
-          await listQuestion(g.actionPrompt, [
-            { name: g.play, value: Move.PLAY },
-            { name: g.discardAndEnd, value: Move.DISCARD },
-          ])
-        )
-  }
-  const discard = async (state: GameStateView, noPlayableCards: boolean): Promise<IMove | null> => {
-    const player = state.players[state.yourKey]
-    if (player === null || !player.hand) throw new Error('Corrupt state')
-    const hand = annotateHandCards(player)
-    const pilesQuestion = genericPrompt(g.choosePile, mapPiles())
-    const cardQuestion = genericPrompt(g.chooseDiscard, hand)
-    while (true) {
-      render(state)
-      const response = await (noPlayableCards
-        ? listQuestion(g.chooseDiscard, hand)
-        : cardQuestion()
-      )
-      if (!response) break
-      const { card } = response
-      const target = await pilesQuestion()
-      if (!target) continue
-      return { type: Move.DISCARD, card, target }
-    }
-    return null
-  }
-  const play = async (state: GameStateView, playableCards: AnnotatedCard[]): Promise<IMove | null> => {
-    const cardQuestion = genericPrompt(g.choosePlay, playableCards)
-    while (true) {
-      render(state)
-      const response = await cardQuestion()
-      if (!response) break
-      const { source, card } = response
-      const targets = whereCardCanBePlayed(card, state)
-      const pilesQuestion = genericPrompt(g.choosePile, mapPiles(targets)) 
-      const target = targets.length === 1
-          ? targets[0]
-          : await pilesQuestion()
-      if (!target) continue
-      return { type: Move.PLAY, source, card, target }
-    }
-    return null
+  const play = async (): Promise<IMove> => {
+    const { card, source } = await cardQuestion(g.choosePlay)
+    const target = await playQuestion(g.choosePile)
+    return { type: Move.PLAY, source, card, target }
   }
   const turn = async (state: GameStateView, commit: (args: IMove) => void) => {
     const player = state.players[state.yourKey]
@@ -86,11 +41,18 @@ export const configureUx = (
 
     while (true) {
       render(state)
-      const action = await actionPrompt(playableCards)
+      const action = !playableCards.length
+        ? Move.DISCARD
+        : (
+            await listQuestion(g.actionPrompt, [
+              { name: g.play, value: Move.PLAY },
+              { name: g.discardAndEnd, value: Move.DISCARD },
+            ])
+          )
       const move = await (
         action === Move.PLAY
-          ? play(state, playableCards)
-          : discard(state, !playableCards.length)
+          ? play()
+          : discard()
       )
       if (!move) continue
 

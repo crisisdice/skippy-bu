@@ -4,6 +4,8 @@ import {
   Message,
   Action,
   Move,
+  PileKey,
+  Source,
 } from 'skip-models'
 
 import {
@@ -20,10 +22,12 @@ export const configureWs = (
   token: string,
   isCreate: boolean,
   listQuestion: ListQuestion,
+  handQuestion: (question: string) => Promise<number>,
+  discardQuestion: (question: string) => Promise<PileKey>,
+  cardQuestion: (question: string) => Promise<{ card: number, source: Source }>,
+  playQuestion: (question: string) => Promise<PileKey>,
   render: (state: GameStateView) => void
 ) => {
-  console.log(render)
-  const ws = new WebSocket(wsURL)
   const format = (action: Action, move?: Move) => {
     return JSON.stringify({
       token,
@@ -32,13 +36,21 @@ export const configureWs = (
       move
     } as Message)
   }
+  const ws = new WebSocket(wsURL)
   const firstMessage = format(isCreate
       ? Action.CREATE
       : Action.JOIN
   )
   ws.onopen = () => ws.send(firstMessage)
 
-  const { start, turn, winner } = configureUx(listQuestion, render)
+  const { start, turn, winner } = configureUx(
+    listQuestion, 
+    handQuestion,
+    discardQuestion,
+    cardQuestion,
+    playQuestion,
+    render
+  )
   const update = async (ws: WebSocket, data: string): Promise<void> => {
     const state = JSON.parse(data) as GameStateView
     if (!state.started) return await start(state, () => ws.send(format(Action.START)))
