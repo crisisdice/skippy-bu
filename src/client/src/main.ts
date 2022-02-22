@@ -1,1 +1,3 @@
-console.log('hello tworld')
+import { renderLogin } from './rendering'
+
+renderLogin()
