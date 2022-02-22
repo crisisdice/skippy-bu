@@ -1,95 +1,58 @@
 import {
-  GameStateView, PileKey, PlayerKey, PlayerView
+  GameStateView, PileKey, PlayerKey, PlayerView, Piles, Source
 } from 'skip-models'
+import {g} from '../i8n'
 
 import { getParent } from './utils'
 
-function renderBuilding(state: GameStateView) {
-  const position = document.createElement('div')
-  position.setAttribute('class', 'playingCards')
+export type HTMLCard = HTMLElement
 
-  position.appendChild(label('Builiding piles'));
-
-  (Object.keys(state.building) as PileKey[]).forEach((key, index) => {
-    const card = state.building[key].length
-      ? state.building[key][0]
-      : null
-    const pile = document.createElement('label')
-    pile.setAttribute('pilenumber', (index + 1).toString())
-    pile.classList.add('card')
-    pile.classList.add('unselected')
-    pile.addEventListener('click', selected(pile, 'buildingselected'))
-    const number = document.createElement('span')
-    number.setAttribute('class', 'rank')
-    number.innerHTML = card
-      ? card.toString()
-      : '*'
-    pile.appendChild(number)
-    position.appendChild(pile)
-  })
-
-  return position
+function renderCard(card: number | '*', source: Source, selectedClass = 'unselected', isYou = false): HTMLCard {
+  const boarder = document.createElement('label')
+  boarder.classList.add('card')
+  boarder.classList.add('unselected')
+  if (isYou) boarder.addEventListener('click', selected(boarder, selectedClass))
+  const value = document.createElement('span')
+  value.classList.add('rank')
+  value.innerHTML = card.toString()
+  boarder.appendChild(value)
+  boarder.setAttribute('source', source)//
+  return boarder
 }
 
-function renderHand(player: PlayerView) {
-  const position = document.createElement('div')
-  position.setAttribute('class', 'playingCards')
-
-  position.appendChild(label('Your hand'))
-
-  player.hand?.forEach(value => {
-    const card = document.createElement('label')
-    card.classList.add('card')
-    card.classList.add('unselected')
-    card.addEventListener('click', selected(card, 'handselected'))
-    const number = document.createElement('span')
-    number.setAttribute('class', 'rank')
-    number.innerHTML = value.toString()
-    card.appendChild(number)
-    position.appendChild(card)
-  })
-
-  return position
+function renderPile(pile: number[], key: PileKey, isYou = false, shared = false): HTMLCard {
+  if (shared && isYou) throw new Error('wrong')
+  const card = pile?.[0]
+  if (!card) return renderCard('*', key as Source)
+  return renderCard(
+    card,
+    key as Source,
+    shared
+      ? 'buildingselected'
+      : 'pileselected',
+    isYou,
+  )
 }
 
 function renderPlayer(player: PlayerView, isYou = false) {
-  const position = document.createElement('div')
-  position.setAttribute('class', 'playingCards')
+  return renderRow(player.discard, player.nickname, isYou, false, player.stock?.[0])
+}
 
-  position.appendChild(label(player.nickname + "'s piles"));
-
-  (Object.keys(player.discard) as PileKey[]).forEach((key, index) => {
-    const card = player.discard[key].length
-      ? player.discard[key][0]
-      : null
-
-    const pile = document.createElement('label')
-    pile.setAttribute('pilenumber', (index + 1).toString())
-    pile.classList.add('card')
-    pile.classList.add('unselected')
-    if (isYou) pile.addEventListener('click', selected(pile, 'pileselected'))
-    const number = document.createElement('span')
-    number.setAttribute('class', 'rank')
-    number.innerHTML = card
-      ? card.toString()
-      : '*'
-    pile.appendChild(number)
-    position.appendChild(pile)
+function renderRow(piles: Piles, text: string, isYou = false, shared = false, stock?: number) {
+  const element = init(text);
+  (Object.keys(piles) as PileKey[]).forEach(key => {
+    element.appendChild(renderPile(piles[key], key, isYou, shared))
   })
+  if (stock) element.appendChild(renderCard(stock, Source.STOCK))
+  return element
+}
 
-  const stock = document.createElement('label')
-  stock.classList.add('card')
-  stock.classList.add('unselected')
-  if (isYou) stock.addEventListener('click', selected(stock, 'stockselected'))
-  const number = document.createElement('span')
-  number.setAttribute('class', 'rank')
-  number.innerHTML = player.stock.length
-    ? player.stock[0].toString()
-    : '*'
-  stock.appendChild(number)
-  position.appendChild(stock)
-
-  return position
+function renderHand(player: PlayerView) {
+  const element = init(g.yourHand)
+  player.hand?.forEach(card => {
+    element.appendChild(renderCard(card, Source.HAND, 'handselected', true))
+  })
+  return element
 }
 
 function renderOtherPlayers(state: GameStateView) {
@@ -101,36 +64,42 @@ function renderOtherPlayers(state: GameStateView) {
 }
 
 export function render(state: GameStateView) {
-  const you = state.players[state.yourKey]
-  if (!you) throw new Error('')
-  const player = renderPlayer(you, true)
-  const hand = renderHand(you)
-  const building = renderBuilding(state)
-  const others = renderOtherPlayers(state)
   const parent = getParent()
   parent.textContent = ''
+  const you = state.players[state.yourKey]
+  if (!you) throw new Error('')
+
+  const others = renderOtherPlayers(state)
+  const building = renderRow(state.building, g.sharedPiles, false, true)
+  const player = renderPlayer(you, true)
+  const hand = renderHand(you)
 
   others.forEach(other => parent.appendChild(other))
+
   parent.appendChild(building)
   parent.appendChild(player)
   parent.appendChild(hand)
 }
 
-function label(text: string) {
-  const element = document.createElement('span')
-  element.setAttribute('class', 'pileLabel')
-  element.innerHTML = text
+function init(text: string) {
+  const element = document.createElement('div')
+  element.classList.add('playingCards')
+  const label = document.createElement('span')
+  label.classList.add('class', 'pileLabel')
+  label.innerHTML = text
+  element.appendChild(label)
   return element
 }
 
-function selected(element: HTMLElement, css: string) {
+function selected(element: HTMLElement, selectedClass: string) {
   return () => {
     Array.from(document.getElementsByClassName('card'))
       .forEach(card => {
           card.classList.add('unselected')
-          card.classList.remove(css)
+          card.classList.remove(selectedClass)
       })
     element.classList.remove('unselected')
-    element.classList.add(css)
+    element.classList.add(selectedClass)
   }
 }
+
